@@ -1,0 +1,15 @@
+{
+  "name": "root",
+  "version": "0.1.0",
+  "scripts": {
+    "repo-clean": "git clean -xdf -e .env",
+    "build": "pnpm --filter @vardario/zod-form-validation run build",
+    "test": "pnpm --filter @vardario/zod-form-validation run test"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@8.6.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vardario/zod-form-validation.git"
+  }
+}

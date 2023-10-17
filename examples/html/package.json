@@ -1,0 +1,16 @@
+{
+  "name": "zod-form-validation-html-example",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "dev": "serve ."
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "serve": "^14.2.1",
+    "zod": "^3.22.4",
+    "@vardario/zod-form-validation": "workspace:*"
+  }
+}

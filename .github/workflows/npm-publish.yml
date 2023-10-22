@@ -13,6 +13,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - uses: pnpm/action-setup@v2
       - run: pnpm install
+      - run: pnpm test
       - run: pnpm build
       - run: pnpm --filter @vardario/zod-form-validation publish --access public --no-git-checks 
         env:

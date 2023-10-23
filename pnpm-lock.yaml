@@ -59,6 +59,9 @@ importers:
       tailwindcss:
         specifier: ^3
         version: 3.3.3
+      type-fest:
+        specifier: ^4.5.0
+        version: 4.5.0
       typescript:
         specifier: ^5
         version: 5.2.2

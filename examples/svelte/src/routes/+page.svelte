@@ -36,7 +36,7 @@
           }
         }),
     }),
-    amount: z.number(),
+    amount: z.bigint(),
     range: z.number(),
     pet: petsSchema,
     fruits: z.array(fruits),

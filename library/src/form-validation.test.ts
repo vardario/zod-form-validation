@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
 import {
@@ -9,8 +9,10 @@ import {
   collectFormInputs,
   setFormData,
   validateForm,
+  flattenSchema,
+  DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME,
+  DATA_VALIDATION_ERROR_ATTRIBUTE_NAME,
 } from "./form-validation.js";
-import { getByTestId } from "@testing-library/dom";
 
 const schema = z.object({
   string: z.string(),
@@ -137,7 +139,6 @@ describe("dom utils", () => {
     <select multiple name="booleanArray">
         <option value="true">true</option>
         <option value="false">false</option>
-
     </select>
     <input name="number" type="number" />
     <select multiple name="numberArray">
@@ -152,6 +153,7 @@ describe("dom utils", () => {
         <option value="2">2</option>
     </select>
     <select name="enum">
+        <option value="">Select an option</option>
         <option value="ONE">One</option>
         <option value="TWO">Two</option>
     </select>
@@ -161,9 +163,8 @@ describe("dom utils", () => {
         <option value="1">1</option>
         <option value="2">2</option>
     </select>
-    <textarea name="object.nested.string">
-    </textarea>
-    <button data-testid="button">submit</button>
+    <textarea name="object.nested.string"></textarea>
+    <button>submit</button>
 </form>
     `);
   };
@@ -220,7 +221,38 @@ describe("dom utils", () => {
     const form = dom.window.document.querySelector("form")!;
     validateForm(form, schema);
 
-    const button = getByTestId(form, "button");
-    button.click();
+    const callback = vi.fn();
+    form.addEventListener("submit", (event) => {
+      callback();
+      event.preventDefault();
+    });
+
+    const submitButton = form.querySelector("button")!;
+    submitButton.click();
+
+    const schemaShape = flattenSchema(schema);
+
+    for (const schemaKey of Object.keys(schemaShape)) {
+      const input = form.querySelector(
+        `input[name="${schemaKey}"],select[name="${schemaKey}"],textarea[name="${schemaKey}"]`
+      )!;
+
+      expect(input).not.toBeNull();
+      expect(schemaShape[schemaKey]).toBeDefined();
+
+      expect(input.getAttribute(DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME)).toBe(
+        schemaShape[schemaKey].isOptional() ? null : "true"
+      );
+      expect(input.getAttribute(DATA_VALIDATION_ERROR_ATTRIBUTE_NAME)).toBe(
+        schemaShape[schemaKey].isOptional() ? null : "Required"
+      );
+    }
+
+    expect(callback).toBeCalledTimes(0);
+
+    setFormData(form, expectedData);
+    submitButton.click();
+
+    expect(callback).toBeCalledTimes(1);
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@vardario/zod-form-validation",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "lib/index.js",
   "type": "module",
@@ -12,7 +12,8 @@
     "watch": "concurrently \"pnpm watch:lib\" \"pnpm watch:browser\"",
     "watch:lib": "pnpm build:lib --watch",
     "watch:browser": "pnpm build:browser --watch",
-    "test": "vitest run"
+    "test": "vitest run",
+    "watch:test": "vitest"
   },
   "files": [
     "/lib"
@@ -20,8 +21,7 @@
   "keywords": [],
   "author": "Sahin Vardar",
   "license": "MIT",
-  "devDependencies": {
-    "@testing-library/dom": "^9.3.3",
+  "devDependencies": {    
     "@types/jsdom": "^21.1.4",
     "@types/lodash": "^4.14.199",
     "concurrently": "^8.2.2",

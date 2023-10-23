@@ -80,7 +80,7 @@ export function formDataToObject<TSchema extends z.ZodSchema>(
         _type === ZodFirstPartyTypeKind.ZodBigInt &&
         typeof values[0] !== "object"
       ) {
-        return BigInt(value);
+        return value === "" ? undefined : BigInt(value);
       }
 
       return value === '' ? undefined : value;
@@ -301,6 +301,7 @@ export function validateForm(form: HTMLFormElement, schema: z.Schema) {
     doValidate = true;
     if (!validateForm()) {
       event.preventDefault();
+      event.stopImmediatePropagation();
     }
   });
 }

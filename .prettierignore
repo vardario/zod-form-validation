@@ -1,0 +1,21 @@
+.DS_Store
+.svelte-kit
+.husky
+.npmrc
+node_modules
+/build
+/package
+/dist
+.env
+.env.*
+.gitignore
+!.env.example
+vite.config.js*
+schema.prisma
+*.sql
+
+# Ignore files for PNPM, NPM and YARN
+pnpm-lock.yaml
+pnpm-workspace.yaml
+package-lock.json
+yarn.lock

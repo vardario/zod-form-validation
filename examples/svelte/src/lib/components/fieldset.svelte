@@ -4,7 +4,7 @@
   export let label: string | undefined = undefined;
   let errors: string[] = [];
 
-  function enhance(input: HTMLInputElement) {
+  function enhance(input: HTMLFieldSetElement) {
     observerValidationErrors(input, (_errors) => {
       errors = _errors;
     });
@@ -13,12 +13,14 @@
 
 <div class="flex flex-col gap-2">
   <div class="flex flex-col-reverse gap-2">
-    <input
+    <fieldset
       use:enhance
-      class="p-2 valid:border rounded outline-none invalid:outline invalid:outline-red-600 outline-1 peer"
+      class="p-2 data-[validation-error=false]:border rounded outline-none data-[validation-error=true]:outline data-[validation-error=true]:outline-red-600 outline-1 peer flex gap-2"
       id={$$props.name}
       {...$$props}
-    />
+    >
+      <slot />
+    </fieldset>
     {#if label}
       <label
         class="peer-data-[validation-required=true]:after:content-['*'] after:text-red-500 peer-invalid:text-red-500 text-sm"

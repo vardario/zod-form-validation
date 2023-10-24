@@ -1,5 +1,12 @@
 <script context="module" lang="ts">
-  import { validateForm, setFormData } from "@vardario/zod-form-validation";
+  import {
+    validateFormData,
+    setRequiresToForm,
+    setValidationErrorsToForm,
+    setFormDataToForm,
+    objectToFormData,
+    clearFormValidationErrors
+  } from "@vardario/zod-form-validation";
 </script>
 
 <script lang="ts">
@@ -13,17 +20,44 @@
   export let data: PartialDeep<ObjectType> | undefined = undefined;
 
   let form: HTMLFormElement;
+  let doValidateOnInput = false;
 
-  function formValidation(_form: HTMLFormElement) {
+  $: {
+    form && data && setFormDataToForm(form, objectToFormData(data));
+     data && console.log( objectToFormData(data))
+    
+  }
+  $: form && setRequiresToForm(form, schema);
+
+  function enhance(_form: HTMLFormElement) {
+    clearFormValidationErrors(_form)
     form = _form;
-    if (schema) {
-      validateForm(_form, schema);
-    }
   }
 
-  $: form && data && setFormData(form, data);
+  function fromValidation() {
+    const result = validateFormData(new FormData(form), schema);
+    if (result.success === false) {      
+      setValidationErrorsToForm(form, result.error);
+      return false;
+    }
+
+    return true;
+  }
 </script>
 
-<form use:formValidation {...$$props}>
+<form
+  novalidate
+  use:enhance
+  on:input={() => doValidateOnInput && fromValidation()}
+  on:submit
+  on:submit={(event) => {
+    doValidateOnInput = true;
+    if (!fromValidation()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }}
+  {...$$props}
+>
   <slot />
 </form>

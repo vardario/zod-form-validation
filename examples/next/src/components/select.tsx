@@ -1,17 +1,9 @@
-"use client";
+'use client';
 
-import { observerValidationErrors } from "@vardario/zod-form-validation";
-import {
-  InputHTMLAttributes,
-  PropsWithChildren,
-  SelectHTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { observerValidationErrors } from '@vardario/zod-form-validation';
+import { InputHTMLAttributes, PropsWithChildren, SelectHTMLAttributes, useEffect, useRef, useState } from 'react';
 
-export interface SelectProps
-  extends PropsWithChildren<SelectHTMLAttributes<HTMLSelectElement>> {
+export interface SelectProps extends PropsWithChildren<SelectHTMLAttributes<HTMLSelectElement>> {
   label?: string;
 }
 
@@ -30,7 +22,7 @@ export default function Select({ label, children, ...props }: SelectProps) {
       <div className="flex flex-col-reverse gap-2">
         <select
           ref={inputRef}
-          className="p-2 valid:border rounded outline-none invalid:outline invalid:outline-red-600 outline-1 peer"
+          className="peer rounded p-2 outline-none outline-1 valid:border invalid:outline invalid:outline-red-600"
           id={props.name}
           {...props}
         >
@@ -38,7 +30,7 @@ export default function Select({ label, children, ...props }: SelectProps) {
         </select>
         {label && (
           <label
-            className="peer-data-[validation-required=true]:after:content-['*'] after:text-red-500 peer-invalid:text-red-500 text-sm"
+            className="text-sm after:text-red-500 peer-invalid:text-red-500 peer-data-[validation-required=true]:after:content-['*']"
             htmlFor={props.name}
           >
             {label}

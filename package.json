@@ -1,15 +1,46 @@
 {
+  "private": true,
   "name": "root",
-  "version": "0.1.3",
-  "scripts": {
-    "repo-clean": "git clean -xdf -e .env",
-    "build": "pnpm --filter @vardario/zod-form-validation run build",
-    "test": "pnpm --filter @vardario/zod-form-validation run test"
-  },
+  "version": "0.1.4",
   "license": "MIT",
-  "packageManager": "pnpm@8.6.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:vardario/zod-form-validation.git"
-  }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @vardario/zod-form-validation run build",
+    "format": "prettier --write . && prettier-package-json --write && eslint --fix .",
+    "prepare": "husky install",
+    "repo-clean": "git clean -xdf -e .env",
+    "test": "pnpm --filter @vardario/zod-form-validation run test",
+    "test:watch": "pnpm --filter @vardario/zod-form-validation run test:watch",
+    "watch:browser": "pnpm --filter @vardario/zod-form-validation run watch:browser",
+    "watch:lib": "pnpm --filter @vardario/zod-form-validation run watch:lib"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-svelte": "^2.32.4",
+    "eslint-plugin-turbo": "^1.10.12",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "globals": "13.21.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.0",
+    "prettier": "^3.0.2",
+    "prettier-package-json": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "prettier-plugin-svelte": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.3"
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write --ignore-unknown",
+      "eslint --fix"
+    ],
+    "package.json": "prettier-package-json --write"
+  },
+  "packageManager": "pnpm@8.6.0"
 }

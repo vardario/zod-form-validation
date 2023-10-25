@@ -1,17 +1,9 @@
-"use client";
+'use client';
 
-import { observerValidationErrors } from "@vardario/zod-form-validation";
-import {
-  InputHTMLAttributes,
-  PropsWithChildren,
-  TextareaHTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { observerValidationErrors } from '@vardario/zod-form-validation';
+import { InputHTMLAttributes, PropsWithChildren, TextareaHTMLAttributes, useEffect, useRef, useState } from 'react';
 
-export interface TextAreaProps
-  extends PropsWithChildren<TextareaHTMLAttributes<HTMLTextAreaElement>> {
+export interface TextAreaProps extends PropsWithChildren<TextareaHTMLAttributes<HTMLTextAreaElement>> {
   label?: string;
 }
 
@@ -30,7 +22,7 @@ export default function Textarea({ label, children, ...props }: TextAreaProps) {
       <div className="flex flex-col-reverse gap-2">
         <textarea
           ref={inputRef}
-          className="p-2 valid:border rounded outline-none invalid:outline invalid:outline-red-600 outline-1 peer"
+          className="peer rounded p-2 outline-none outline-1 valid:border invalid:outline invalid:outline-red-600"
           id={props.name}
           {...props}
         >
@@ -38,7 +30,7 @@ export default function Textarea({ label, children, ...props }: TextAreaProps) {
         </textarea>
         {label && (
           <label
-            className="peer-data-[validation-required=true]:after:content-['*'] after:text-red-500 peer-invalid:text-red-500 text-sm"
+            className="text-sm after:text-red-500 peer-invalid:text-red-500 peer-data-[validation-required=true]:after:content-['*']"
             htmlFor={props.name}
           >
             {label}

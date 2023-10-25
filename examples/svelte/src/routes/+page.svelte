@@ -1,18 +1,13 @@
 <script lang="ts">
-  import { z } from "zod";
-  import { Input, Select, Form, Textarea } from "$lib/index.js";
+  import { z } from 'zod';
+  import { Input, Select, Form, Textarea, Fieldset } from '$lib/index.js';
+  import { parseFormData } from '@vardario/zod-form-validation';
+  import { parse } from 'svelte/compiler';
 
-  const petsSchema = z.enum([
-    "dog",
-    "cat",
-    "hamster",
-    "parrot",
-    "spider",
-    "goldfish",
-  ]);
+  const petsSchema = z.enum(['dog', 'cat', 'hamster', 'parrot', 'spider', 'goldfish']);
 
-  const monsterSchema = z.enum(["kraken", "sasquatch", "mothman"]);
-  const fruits = z.enum(["apple", "banana", "kiwi"]);
+  const monsterSchema = z.enum(['kraken', 'sasquatch', 'mothman']);
+  const fruits = z.enum(['apple', 'banana', 'kiwi']);
 
   const schema = z.object({
     admin: z.boolean().optional(),
@@ -30,8 +25,8 @@
           if (email !== confirmEmail) {
             context.addIssue({
               code: z.ZodIssueCode.custom,
-              message: "E-Mail does not match",
-              path: ["confirmEmail"],
+              message: 'E-Mail does not match',
+              path: ['confirmEmail'],
             });
           }
         }),
@@ -41,27 +36,29 @@
     pet: petsSchema,
     fruits: z.array(fruits),
     description: z.string(),
-    monster: monsterSchema,
+    monster: z.object({
+      value: monsterSchema,
+    }),
   });
+
+  function submit(event: Event) {
+    const result = parseFormData(new FormData(event.target! as HTMLFormElement), schema);
+    if (result.success) {
+      alert(JSON.stringify(result.data, null, 2));
+    }
+  }
 </script>
 
 <main>
-  <section class="min-h-screen flex">
-    <Form class="flex gap-2 flex-col m-auto border p-4 rounded w-1/3" {schema}>
+  <section class="flex min-h-screen">
+    <Form class="m-auto flex w-1/3 flex-col gap-2 rounded border p-4" {schema} on:submit={submit}>
       <Input label="Admin" name="admin" type="checkbox" />
       <Input label="Given Name" name="givenName" />
       <Input label="Surname" name="surname" />
       <Input label="Birthday" name="birthday" type="date" />
       <Input label="Amount" name="amount" type="number" />
-      <Input
-        label="Range"
-        name="range"
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-      />
-      <div class="p-2 border rounded flex flex-col">
+      <Input label="Range" name="range" type="range" min="0" max="100" step="1" />
+      <div class="flex flex-col rounded border p-2">
         <Input label="Telephone" name="contact.tel" />
         <Input label="E-Mail" name="contact.email.email" />
         <Input label="Confirm E-Mail" name="contact.email.confirmEmail" />
@@ -82,19 +79,14 @@
         <option value="kiwi">Kiwi</option>
       </Select>
       <Textarea label="Description" name="description" />
-      <fieldset name="monster" class="flex gap-2">
-        <Input label="Kraken" name="monster" type="radio" value="kraken" />
-        <Input
-          label="Sasquatch"
-          name="monster"
-          type="radio"
-          value="sasquatch"
-        />
-        <Input label="Mothman" name="monster" type="radio" value="mothman" />
-      </fieldset>
-      <span class="text-red-500 text-sm" />
-      <button class="p-2 border rounded bg-slate-500">Save</button>
-      <span class="text-gray-500 text-sm"> * required </span>
+      <Fieldset label="Monster" name="monster">
+        <Input label="Kraken" name="monster.value" type="radio" value="kraken" />
+        <Input label="Sasquatch" name="monster.value" type="radio" value="sasquatch" />
+        <Input label="Mothman" name="monster.value" type="radio" value="mothman" />
+      </Fieldset>
+      <span class="text-sm text-red-500" />
+      <button class="rounded border bg-slate-500 p-2">Save</button>
+      <span class="text-sm text-gray-500"> * required </span>
     </Form>
   </section>
 </main>

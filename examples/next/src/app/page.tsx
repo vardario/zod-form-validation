@@ -1,23 +1,16 @@
-"use client";
+'use client';
 
-import Input from "@/components/input";
-import Form from "../components/form";
-import { z } from "zod";
-import Select from "@/components/select";
-import Textarea from "@/components/textarea";
-import { formDataToObject } from "@vardario/zod-form-validation";
+import Input from '@/components/input';
+import Form from '../components/form';
+import { z } from 'zod';
+import Select from '@/components/select';
+import Textarea from '@/components/textarea';
+import { formDataToObject } from '@vardario/zod-form-validation';
 
-const petsSchema = z.enum([
-  "dog",
-  "cat",
-  "hamster",
-  "parrot",
-  "spider",
-  "goldfish",
-]);
+const petsSchema = z.enum(['dog', 'cat', 'hamster', 'parrot', 'spider', 'goldfish']);
 
-const monsterSchema = z.enum(["kraken", "sasquatch", "mothman"]);
-const fruits = z.enum(["apple", "banana", "kiwi"]);
+const monsterSchema = z.enum(['kraken', 'sasquatch', 'mothman']);
+const fruits = z.enum(['apple', 'banana', 'kiwi']);
 
 const schema = z.object({
   admin: z.boolean().optional(),
@@ -35,8 +28,8 @@ const schema = z.object({
         if (email !== confirmEmail) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "E-Mail does not match",
-            path: ["confirmEmail"],
+            message: 'E-Mail does not match',
+            path: ['confirmEmail'],
           });
         }
       }),
@@ -52,22 +45,13 @@ const schema = z.object({
 export default function Home() {
   return (
     <main>
-      <section className="min-h-screen flex">
+      <section className="flex min-h-screen">
         <Form
           data={{}}
           schema={schema}
-          className="flex gap-2 flex-col m-auto border p-4 rounded w-1/3"
+          className="m-auto flex w-1/3 flex-col gap-2 rounded border p-4"
           onSubmit={(event) => {
-            alert(
-              JSON.stringify(
-                formDataToObject(
-                  new FormData(event.target as HTMLFormElement),
-                  schema
-                ),
-                null,
-                2
-              )
-            );
+            alert(JSON.stringify(formDataToObject(new FormData(event.target as HTMLFormElement), schema), null, 2));
             event.preventDefault();
           }}
         >
@@ -76,15 +60,8 @@ export default function Home() {
           <Input label="Surname" name="surname" />
           <Input label="Birthday" name="birthday" type="date" />
           <Input label="Amount" name="amount" type="number" />
-          <Input
-            label="Range"
-            name="range"
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-          />
-          <div className="p-2 border rounded flex flex-col">
+          <Input label="Range" name="range" type="range" min="0" max="100" step="1" />
+          <div className="flex flex-col rounded border p-2">
             <Input label="Telephone" name="contact.tel" />
             <Input label="E-Mail" name="contact.email.email" />
             <Input label="Confirm E-Mail" name="contact.email.confirmEmail" />
@@ -107,22 +84,12 @@ export default function Home() {
           <Textarea label="Description" name="description" />
           <fieldset name="monster" className="flex gap-2">
             <Input label="Kraken" name="monster" type="radio" value="kraken" />
-            <Input
-              label="Sasquatch"
-              name="monster"
-              type="radio"
-              value="sasquatch"
-            />
-            <Input
-              label="Mothman"
-              name="monster"
-              type="radio"
-              value="mothman"
-            />
+            <Input label="Sasquatch" name="monster" type="radio" value="sasquatch" />
+            <Input label="Mothman" name="monster" type="radio" value="mothman" />
           </fieldset>
-          <span className="text-red-500 text-sm" />
-          <button className="p-2 border rounded bg-slate-500">Save</button>
-          <span className="text-gray-500 text-sm"> * required </span>
+          <span className="text-sm text-red-500" />
+          <button className="rounded border bg-slate-500 p-2">Save</button>
+          <span className="text-sm text-gray-500"> * required </span>
         </Form>
       </section>
     </main>

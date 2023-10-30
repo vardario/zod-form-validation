@@ -194,7 +194,9 @@ function extractShape(schema: z.ZodSchema) {
   return undefined;
 }
 
-export function parseFormData<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
-  const parsed = schema.safeParse(preprocess(formDataToObject(formData), schema));
-  return parsed;
+export function parseFormData<TSchema extends z.ZodSchema>(
+  formData: FormData,
+  schema: TSchema,
+): z.SafeParseReturnType<any, z.infer<TSchema>> {
+  return schema.safeParse(preprocess(formDataToObject(formData), schema));
 }

@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import {
+  setDataToForm,
   setFormDataToForm,
   setRequiresToForm,
   setValidationErrorsToForm,
   validateFormData,
 } from '../form-validation.js';
-import { formDataToObject, preprocess } from '../utils.js';
+import { formDataToData } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getDom, getFormData } from './test-fixtures.js';
 
 describe('Form Validation', () => {
@@ -16,7 +17,17 @@ describe('Form Validation', () => {
     setFormDataToForm(form!, getFormData());
     const formData = new FormData(form!);
 
-    expect(preprocess(formDataToObject(formData), SCHEMA)).toStrictEqual(EXPECTED_DATA);
+    expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
+  });
+
+  test('setDataToForm', () => {
+    const dom = getDom();
+    const form = dom.window.document.querySelector('form');
+    expect(form).not.toBeNull();
+
+    setDataToForm(form!, EXPECTED_DATA);
+    const formData = new FormData(form!);
+    expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
   });
 
   test('validateFormData', () => {

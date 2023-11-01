@@ -111,7 +111,12 @@ export function formDataToObject(formData: FormData) {
   return result;
 }
 
-export function objectToFormData(obj: ObjectType) {
+export function formDataToData<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema){
+  return preprocess(formDataToObject(formData), schema);
+
+}
+
+export function objectToFormData(obj: any) {
   const flatObject = flattenObject(obj) as Record<string, any>;
 
   const formData = new FormData();

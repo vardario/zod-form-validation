@@ -23,7 +23,7 @@
   let doValidateOnInput = false;
 
   $: {
-    form && data && setFormDataToForm(form, objectToFormData(data));
+    form && data && setFormDataToForm(form, data);
      data && console.log( objectToFormData(data))
     
   }

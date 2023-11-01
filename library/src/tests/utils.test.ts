@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   flattenObject,
   flattenSchema,
+  formDataToData,
   formDataToObject,
   objectToFormData,
   parseFormData,
@@ -102,5 +103,9 @@ describe('utils', () => {
     if (result.success) {
       expect(result.data).toStrictEqual(EXPECTED_DATA);
     }
+  });
+
+  test('formDataToData', () => {
+    expect(formDataToData(getFormData(), SCHEMA)).toStrictEqual(EXPECTED_DATA);
   });
 });

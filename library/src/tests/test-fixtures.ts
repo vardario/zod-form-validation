@@ -5,6 +5,7 @@ export const SCHEMA = z
   .object({
     string: z.string().optional(),
     boolean: z.boolean(),
+    defaultBoolean: z.boolean().default(true),
     bigInt: z.bigint(),
     number: z.number(),
     stringArray: z.array(z.string()),
@@ -28,6 +29,7 @@ export const EXPECTED_DATA: DataType = {
   bigInt: 1n,
   bigIntArray: [0n, 1n, 2n],
   boolean: true,
+  defaultBoolean: true,
   booleanArray: [true, false],
   number: 1024,
   numberArray: [0],
@@ -53,6 +55,7 @@ export function getDom() {
       <option value="2">2</option>
   </select>
   <input name="boolean" type="checkbox" />
+  <input name="defaultBoolean" type="checkbox" />
   <select multiple name="booleanArray">
       <option value="true">true</option>
       <option value="false">false</option>
@@ -94,6 +97,7 @@ export function getFormData() {
   formData.append('bigIntArray', '1');
   formData.append('bigIntArray', '2');
   formData.append('boolean', 'true');
+  formData.append('defaultBoolean', 'true');
   formData.append('booleanArray', 'true');
   formData.append('booleanArray', 'false');
   formData.append('number', '1024');

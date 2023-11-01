@@ -1,4 +1,4 @@
-import { ZodEffectsDef, ZodFirstPartyTypeKind, ZodOptionalDef, z } from 'zod';
+import { ZodDefaultDef, ZodEffectsDef, ZodFirstPartyTypeKind, ZodOptionalDef, z } from 'zod';
 
 import { DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME } from './form-validation.js';
 
@@ -25,6 +25,10 @@ export function fullyUnwrap<TSchema extends z.ZodSchema>(schema: TSchema) {
 
   if (type === ZodFirstPartyTypeKind.ZodOptional) {
     result = fullyUnwrap((schema._def as ZodOptionalDef).innerType);
+  }
+
+  if (type === ZodFirstPartyTypeKind.ZodDefault) {
+    result = fullyUnwrap((schema._def as ZodDefaultDef).innerType);
   }
 
   while (result['unwrap'] !== undefined && typeof result['unwrap'] === 'function') {

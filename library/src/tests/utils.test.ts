@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import {
   flattenObject,
   flattenSchema,
-  formDataToData,
   formDataToObject,
   objectToFormData,
   parseFormData,
@@ -18,6 +17,7 @@ describe('utils', () => {
       bigInt: ['1'],
       bigIntArray: ['0', '1', '2'],
       boolean: ['true'],
+      defaultBoolean: ['true'],
       booleanArray: ['true', 'false'],
       number: ['1024'],
       numberArray: ['0'],
@@ -48,6 +48,7 @@ describe('utils', () => {
         'bigInt',
         'bigIntArray',
         'boolean',
+        'defaultBoolean',
         'booleanArray',
         'number',
         'numberArray',
@@ -81,6 +82,7 @@ describe('utils', () => {
         'bigInt',
         'bigIntArray',
         'boolean',
+        'defaultBoolean',
         'booleanArray',
         'number',
         'numberArray',
@@ -103,9 +105,5 @@ describe('utils', () => {
     if (result.success) {
       expect(result.data).toStrictEqual(EXPECTED_DATA);
     }
-  });
-
-  test('formDataToData', () => {
-    expect(formDataToData(getFormData(), SCHEMA)).toStrictEqual(EXPECTED_DATA);
   });
 });

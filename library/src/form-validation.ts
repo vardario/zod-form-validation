@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { flattenSchema, formDataToObject, groupIssuesByName, preprocess } from './utils.js';
+import { flattenSchema, formDataToObject, groupIssuesByName, objectToFormData, preprocess } from './utils.js';
 
 export const DATA_VALIDATION_ERROR_ATTRIBUTE_NAME = 'data-validation-error';
 export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-error-message';
@@ -48,6 +48,11 @@ export function setFormDataToForm(form: HTMLFormElement, formData: FormData) {
       }
     });
   }
+}
+
+export function setDataToForm(form: HTMLFormElement, data: any) {
+  const formData = objectToFormData(data);
+  setFormDataToForm(form, formData);
 }
 
 export function validateFormData<TSchema extends z.Schema>(formData: FormData, schema: TSchema) {

@@ -70,7 +70,9 @@ export function preprocess<TSchema extends z.ZodSchema>(values: ObjectType, sche
   switch (zodType) {
     case z.ZodFirstPartyTypeKind.ZodArray: {
       const arraySchema = unboxedSchema._def as z.ZodArrayDef;
-      return values.length ? values.map((item) => preprocess([item], arraySchema.type)) : undefined;
+      return values.length
+        ? values.map((item) => preprocess([item], arraySchema.type)).filter((item) => item !== undefined)
+        : undefined;
     }
 
     case z.ZodFirstPartyTypeKind.ZodBigInt: {
@@ -115,9 +117,8 @@ export function formDataToObject(formData: FormData) {
   return result;
 }
 
-export function formDataToData<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema){
+export function formDataToData<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
   return preprocess(formDataToObject(formData), schema);
-
 }
 
 export function objectToFormData(obj: any) {

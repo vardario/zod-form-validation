@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { z } from 'zod';
 import {
   flattenObject,
   flattenSchema,
@@ -105,5 +106,14 @@ describe('utils', () => {
     if (result.success) {
       expect(result.data).toStrictEqual(EXPECTED_DATA);
     }
+  });
+
+  test('emptyArrayHandling', () => {
+    const schema = z.object({
+      array: z.array(z.string()),
+    });
+    const formData = new FormData();
+    formData.append('array', '');
+    expect(parseFormData(formData, schema).success).toBe(true);
   });
 });

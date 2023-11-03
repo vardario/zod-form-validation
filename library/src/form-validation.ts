@@ -21,8 +21,10 @@ function setSelectElementValue(selectElement: HTMLSelectElement, values: string[
 function setInputElementValue(inputElement: HTMLInputElement, value: string) {
   if (inputElement.type === 'checkbox' || inputElement.type === 'radio') {
     inputElement.checked = inputElement.value === value.replace('true', 'on');
+    inputElement.setAttribute('checked', value.replace('true', 'on'));
   } else {
     inputElement.value = value;
+    inputElement.setAttribute('value', value);
   }
 }
 
@@ -45,6 +47,7 @@ export function setFormDataToForm(form: HTMLFormElement, formData: FormData) {
       if (formInput.nodeName === 'TEXTAREA') {
         const textareaElement = formInput as HTMLTextAreaElement;
         textareaElement.value = values[0];
+        textareaElement.setAttribute('value', values[0]);
       }
     });
   }

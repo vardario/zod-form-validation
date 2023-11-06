@@ -1,4 +1,6 @@
+import { JSDOM } from 'jsdom';
 import { describe, expect, test } from 'vitest';
+import { z } from 'zod';
 import {
   setDataToForm,
   setFormDataToForm,
@@ -18,6 +20,30 @@ describe('Form Validation', () => {
     const formData = new FormData(form!);
 
     expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
+
+    const arraySchema = z.object({
+      array: z.array(z.number()),
+    });
+    const formWithSelectDom = new JSDOM('<form><select multiple name="array"></select></form>');
+    const arrayFrom = formWithSelectDom.window.document.querySelector('form');
+    expect(arrayFrom).not.toBeNull();
+
+    let arrayFormDataA = new FormData(arrayFrom!);
+    let arrayFormDataB = new FormData(arrayFrom!);
+
+    const arrayValuesA = [0, 1, 2, 3, 4];
+    const arrayValuesB = [0, 3, 4];
+
+    arrayValuesA.forEach((value) => arrayFormDataA.append('array', value.toString()));
+    arrayValuesB.forEach((value) => arrayFormDataB.append('array', value.toString()));
+
+    setFormDataToForm(arrayFrom!, arrayFormDataA);
+    arrayFormDataA = new FormData(arrayFrom!);
+    expect(formDataToData(arrayFormDataA, arraySchema)).toStrictEqual({ array: arrayValuesA });
+
+    setFormDataToForm(arrayFrom!, arrayFormDataB);
+    arrayFormDataB = new FormData(arrayFrom!);
+    expect(formDataToData(arrayFormDataB, arraySchema)).toStrictEqual({ array: arrayValuesB });
   });
 
   test('setDataToForm', () => {

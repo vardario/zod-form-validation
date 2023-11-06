@@ -6,16 +6,19 @@ export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-err
 export const DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME = 'data-validation-required';
 
 function setSelectElementValue(selectElement: HTMLSelectElement, values: string[]) {
-  for (const child of selectElement.children) {
-    if (child.nodeName === 'OPTION') {
-      const optionElement = child as HTMLOptionElement;
-      optionElement.removeAttribute('selected');
+  const options = [...selectElement.children].filter((item) => item.nodeName === 'OPTION') as HTMLOptionElement[];
+  options.forEach((option) => option.removeAttribute('selected'));
 
-      if (values.includes(optionElement.value)) {
-        optionElement.setAttribute('selected', '');
-      }
-    }
-  }
+  const selectedOptions = options.filter((option) => values.includes(option.value));
+  selectedOptions.forEach((option) => option.setAttribute('selected', ''));
+
+  const valueDiff = values.filter((value) => options.find((option) => option.value === value) === undefined);
+  valueDiff.forEach((value) => {
+    const option = document.createElement('option');
+    option.setAttribute('value', value);
+    option.setAttribute('selected', '');
+    selectElement.add(option);
+  });
 }
 
 function setInputElementValue(inputElement: HTMLInputElement, value: string) {

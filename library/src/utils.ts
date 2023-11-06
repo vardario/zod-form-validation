@@ -129,7 +129,7 @@ export function objectToFormData(obj: any) {
     const value = flatObject[key];
     if (Array.isArray(value)) {
       value.forEach((v) => formData.append(key, v.toString()));
-    } else {
+    } else if (value) {
       formData.append(key, value.toString());
     }
   }

@@ -37,6 +37,12 @@ describe('utils', () => {
     const formData = getFormData();
     const object = formDataToObject(formData);
     expect(formDataToObject(objectToFormData(object))).toStrictEqual(object);
+
+    const undefinedFormData = objectToFormData({
+      unused: undefined,
+    });
+
+    expect(undefinedFormData.get('unused')).toBe(null);
   });
 
   test('flattenObject', () => {

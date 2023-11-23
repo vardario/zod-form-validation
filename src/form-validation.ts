@@ -6,14 +6,14 @@ export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-err
 export const DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME = 'data-validation-required';
 
 function setSelectElementValue(selectElement: HTMLSelectElement, values: string[]) {
-  const options = [...selectElement.children].filter((item) => item.nodeName === 'OPTION') as HTMLOptionElement[];
-  options.forEach((option) => option.removeAttribute('selected'));
+  const options = [...selectElement.children].filter(item => item.nodeName === 'OPTION') as HTMLOptionElement[];
+  options.forEach(option => option.removeAttribute('selected'));
 
-  const selectedOptions = options.filter((option) => values.includes(option.value));
-  selectedOptions.forEach((option) => option.setAttribute('selected', ''));
+  const selectedOptions = options.filter(option => values.includes(option.value));
+  selectedOptions.forEach(option => option.setAttribute('selected', ''));
 
-  const valueDiff = values.filter((value) => options.find((option) => option.value === value) === undefined);
-  valueDiff.forEach((value) => {
+  const valueDiff = values.filter(value => options.find(option => option.value === value) === undefined);
+  valueDiff.forEach(value => {
     const option = document.createElement('option');
     option.setAttribute('value', value);
     option.setAttribute('selected', '');
@@ -34,9 +34,9 @@ function setInputElementValue(inputElement: HTMLInputElement, value: string) {
 export function setFormDataToForm(form: HTMLFormElement, formData: FormData) {
   for (const key of formData.keys()) {
     const formInputs = [...form.querySelectorAll(`[name="${key}"]`)];
-    const values = formData.getAll(key).filter((v) => !(v instanceof File)) as string[];
+    const values = formData.getAll(key).filter(v => !(v instanceof File)) as string[];
 
-    formInputs.forEach((formInput) => {
+    formInputs.forEach(formInput => {
       if (formInput.nodeName === 'SELECT') {
         const selectElement = formInput as HTMLSelectElement;
         setSelectElementValue(selectElement, values);
@@ -44,7 +44,7 @@ export function setFormDataToForm(form: HTMLFormElement, formData: FormData) {
 
       if (formInput.nodeName === 'INPUT') {
         const inputElement = formInput as HTMLInputElement;
-        values.forEach((value) => setInputElementValue(inputElement, value));
+        values.forEach(value => setInputElementValue(inputElement, value));
       }
 
       if (formInput.nodeName === 'TEXTAREA') {
@@ -67,8 +67,8 @@ export function validateFormData<TSchema extends z.Schema>(formData: FormData, s
 }
 
 export function clearFormValidationErrors(form: HTMLFormElement) {
-  const controls = [...form.elements].filter((control) =>
-    ['INPUT', 'SELECT', 'TEXTAREA', 'FIELDSET'].includes(control.nodeName),
+  const controls = [...form.elements].filter(control =>
+    ['INPUT', 'SELECT', 'TEXTAREA', 'FIELDSET'].includes(control.nodeName)
   ) as (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)[];
   for (const control of controls) {
     const inputElement = control as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -89,7 +89,7 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
       | HTMLTextAreaElement;
     const issues = issuesByName[name];
     if (inputElement) {
-      const errorMessage = issues.map((issue) => issue.message).join('\n');
+      const errorMessage = issues.map(issue => issue.message).join('\n');
       inputElement.setCustomValidity(errorMessage);
       inputElement.setAttribute(DATA_VALIDATION_ERROR_ATTRIBUTE_NAME, 'true');
       inputElement.setAttribute(DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME, errorMessage);

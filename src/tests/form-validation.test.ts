@@ -6,7 +6,7 @@ import {
   setFormDataToForm,
   setRequiresToForm,
   setValidationErrorsToForm,
-  validateFormData,
+  validateFormData
 } from '../form-validation.js';
 import { formDataToData } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getDom, getFormData } from './test-fixtures.js';
@@ -22,7 +22,7 @@ describe('Form Validation', () => {
     expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
 
     const arraySchema = z.object({
-      array: z.array(z.number()),
+      array: z.array(z.number())
     });
     const formWithSelectDom = new JSDOM('<form><select multiple name="array"></select></form>');
     const arrayFrom = formWithSelectDom.window.document.querySelector('form');
@@ -34,8 +34,8 @@ describe('Form Validation', () => {
     const arrayValuesA = [0, 1, 2, 3, 4];
     const arrayValuesB = [0, 3, 4];
 
-    arrayValuesA.forEach((value) => arrayFormDataA.append('array', value.toString()));
-    arrayValuesB.forEach((value) => arrayFormDataB.append('array', value.toString()));
+    arrayValuesA.forEach(value => arrayFormDataA.append('array', value.toString()));
+    arrayValuesB.forEach(value => arrayFormDataB.append('array', value.toString()));
 
     setFormDataToForm(arrayFrom!, arrayFormDataA);
     arrayFormDataA = new FormData(arrayFrom!);

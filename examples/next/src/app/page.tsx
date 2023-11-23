@@ -22,24 +22,24 @@ const schema = z.object({
     email: z
       .object({
         email: z.string().email(),
-        confirmEmail: z.string().email(),
+        confirmEmail: z.string().email()
       })
       .superRefine(({ email, confirmEmail }, context) => {
         if (email !== confirmEmail) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'E-Mail does not match',
-            path: ['confirmEmail'],
+            path: ['confirmEmail']
           });
         }
-      }),
+      })
   }),
   amount: z.number(),
   range: z.number(),
   pet: petsSchema,
   fruits: z.array(fruits),
   description: z.string(),
-  monster: monsterSchema,
+  monster: monsterSchema
 });
 
 export default function Home() {
@@ -50,7 +50,7 @@ export default function Home() {
           data={{}}
           schema={schema}
           className="m-auto flex w-1/3 flex-col gap-2 rounded border p-4"
-          onSubmit={(event) => {
+          onSubmit={event => {
             alert(JSON.stringify(formDataToObject(new FormData(event.target as HTMLFormElement), schema), null, 2));
             event.preventDefault();
           }}

@@ -12,7 +12,7 @@ export default function Input({ label, ...props }: InputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    observerValidationErrors(inputRef.current!, (_errors) => {
+    observerValidationErrors(inputRef.current!, _errors => {
       setError(_errors);
     });
   }, [inputRef]);

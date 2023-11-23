@@ -6,7 +6,7 @@ import {
   formDataToObject,
   objectToFormData,
   parseFormData,
-  preprocess,
+  preprocess
 } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getFormData } from './test-fixtures.js';
 
@@ -28,8 +28,8 @@ describe('utils', () => {
       object: {
         string: ['string'],
         numberArray: ['0', '1', '2'],
-        nested: { string: ['string'] },
-      },
+        nested: { string: ['string'] }
+      }
     });
   });
 
@@ -39,7 +39,7 @@ describe('utils', () => {
     expect(formDataToObject(objectToFormData(object))).toStrictEqual(object);
 
     const undefinedFormData = objectToFormData({
-      unused: undefined,
+      unused: undefined
     });
 
     expect(undefinedFormData.get('unused')).toBe(null);
@@ -64,12 +64,12 @@ describe('utils', () => {
         'enum',
         'object.string',
         'object.numberArray',
-        'object.nested.string',
-      ].sort(),
+        'object.nested.string'
+      ].sort()
     );
 
     const allElementsAreArrays = Object.values(flatObject)
-      .map((value) => Array.isArray(value))
+      .map(value => Array.isArray(value))
       .reduce((acc, value) => acc && value, true);
 
     expect(allElementsAreArrays).toBe(true);
@@ -100,8 +100,8 @@ describe('utils', () => {
         'object.nested',
         'object.string',
         'object.numberArray',
-        'object.nested.string',
-      ].sort(),
+        'object.nested.string'
+      ].sort()
     );
   });
 
@@ -116,7 +116,7 @@ describe('utils', () => {
 
   test('emptyArrayHandling', () => {
     const schema = z.object({
-      array: z.array(z.string()),
+      array: z.array(z.string())
     });
     const formData = new FormData();
     formData.append('array', '');

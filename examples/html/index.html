@@ -313,24 +313,24 @@
       observerValidationErrors,
       validateFormData,
       setValidationErrorsToForm,
-      clearFormValidationErrors,
+      clearFormValidationErrors
     } from '@vardario/zod-form-validation';
     import { z } from 'zod';
     const form = document.querySelector('form');
     const inputs = form.querySelectorAll('input,select,textarea,fieldset');
 
-    inputs.forEach((input) => {
-      observerValidationErrors(input, (errors) => {
+    inputs.forEach(input => {
+      observerValidationErrors(input, errors => {
         const errorMessages = input.parentElement.nextElementSibling;
 
         errorMessages &&
           errorMessages.replaceChildren(
-            ...errors.map((error) => {
+            ...errors.map(error => {
               const span = document.createElement('span');
               span.innerText = error;
               span.className = 'text-sm text-red-600';
               return span;
-            }),
+            })
           );
       });
     });
@@ -350,24 +350,24 @@
         email: z
           .object({
             email: z.string().email(),
-            confirmEmail: z.string().email(),
+            confirmEmail: z.string().email()
           })
           .superRefine(({ email, confirmEmail }, context) => {
             if (email !== confirmEmail) {
               context.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'E-Mail does not match',
-                path: ['confirmEmail'],
+                path: ['confirmEmail']
               });
             }
-          }),
+          })
       }),
       amount: z.number(),
       range: z.number(),
       pet: petsSchema,
       fruits: z.array(fruits),
       description: z.string(),
-      monster: monsterSchema,
+      monster: monsterSchema
     });
 
     function fromValidation() {
@@ -384,7 +384,7 @@
     setRequiresToForm(form, schema);
     clearFormValidationErrors(form);
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', event => {
       doValidateOnInput = true;
       if (!fromValidation()) {
         event.preventDefault();
@@ -392,7 +392,7 @@
       }
     });
 
-    form.addEventListener('input', (event) => {
+    form.addEventListener('input', event => {
       doValidateOnInput && fromValidation();
     });
   </script>

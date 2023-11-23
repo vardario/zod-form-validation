@@ -1,7 +1,7 @@
 'use client';
 
 import { observerValidationErrors } from '@vardario/zod-form-validation';
-import { InputHTMLAttributes, PropsWithChildren, SelectHTMLAttributes, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, SelectHTMLAttributes, useEffect, useRef, useState } from 'react';
 
 export interface SelectProps extends PropsWithChildren<SelectHTMLAttributes<HTMLSelectElement>> {
   label?: string;
@@ -12,7 +12,7 @@ export default function Select({ label, children, ...props }: SelectProps) {
   const inputRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
-    observerValidationErrors(inputRef.current!, (_errors) => {
+    observerValidationErrors(inputRef.current!, _errors => {
       setError(_errors);
     });
   }, [inputRef]);

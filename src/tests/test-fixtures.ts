@@ -17,9 +17,9 @@ export const SCHEMA = z
       string: z.string(),
       numberArray: z.array(z.number()),
       nested: z.object({
-        string: z.string(),
-      }),
-    }),
+        string: z.string()
+      })
+    })
   })
   .superRefine(() => {});
 
@@ -40,9 +40,9 @@ export const EXPECTED_DATA: DataType = {
     string: 'string',
     numberArray: [0, 1, 2],
     nested: {
-      string: 'string',
-    },
-  },
+      string: 'string'
+    }
+  }
 };
 
 export function getDom() {

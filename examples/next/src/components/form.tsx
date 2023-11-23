@@ -7,8 +7,8 @@ import { setFormDataToForm, objectToFormData, setRequiresToForm } from '@vardari
 
 export interface FormProps<TSchema extends z.ZodSchema, TData = unknown>
   extends PropsWithChildren<HTMLAttributes<HTMLFormElement>> {
-  schema?: TSchema;
   data?: PartialDeep<TData>;
+  schema?: TSchema;
 }
 
 export default function Form<TSchema extends z.ZodSchema, TData = z.infer<TSchema>>({

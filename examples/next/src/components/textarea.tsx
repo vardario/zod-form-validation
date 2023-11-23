@@ -1,7 +1,7 @@
 'use client';
 
 import { observerValidationErrors } from '@vardario/zod-form-validation';
-import { InputHTMLAttributes, PropsWithChildren, TextareaHTMLAttributes, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, TextareaHTMLAttributes, useEffect, useRef, useState } from 'react';
 
 export interface TextAreaProps extends PropsWithChildren<TextareaHTMLAttributes<HTMLTextAreaElement>> {
   label?: string;
@@ -12,7 +12,7 @@ export default function Textarea({ label, children, ...props }: TextAreaProps) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    observerValidationErrors(inputRef.current!, (_errors) => {
+    observerValidationErrors(inputRef.current!, _errors => {
       setError(_errors);
     });
   }, [inputRef]);

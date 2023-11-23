@@ -71,7 +71,7 @@ export function preprocess<TSchema extends z.ZodSchema>(values: ObjectType, sche
     case z.ZodFirstPartyTypeKind.ZodArray: {
       const arraySchema = unboxedSchema._def as z.ZodArrayDef;
       return values.length
-        ? values.map((item) => preprocess([item], arraySchema.type)).filter((item) => item !== undefined)
+        ? values.map(item => preprocess([item], arraySchema.type)).filter(item => item !== undefined)
         : undefined;
     }
 
@@ -128,7 +128,7 @@ export function objectToFormData(obj: any) {
   for (const key of Object.keys(flatObject)) {
     const value = flatObject[key];
     if (Array.isArray(value)) {
-      value.forEach((v) => formData.append(key, v.toString()));
+      value.forEach(v => formData.append(key, v.toString()));
     } else if (value) {
       formData.append(key, value.toString());
     }
@@ -147,7 +147,7 @@ export function groupIssuesByName(issues: z.ZodIssue[]) {
 
       return acc;
     },
-    {} as Record<string, z.ZodIssue[]>,
+    {} as Record<string, z.ZodIssue[]>
   );
 }
 
@@ -166,7 +166,7 @@ function _flattenSchema(shape: any, prefix = '') {
       }
       return acc;
     },
-    {} as Record<string, z.Schema>,
+    {} as Record<string, z.Schema>
   );
 }
 
@@ -181,8 +181,8 @@ export function flattenSchema<TSchema extends z.ZodSchema>(schema: TSchema, pref
 }
 
 export function observerValidationErrors(input: HTMLElement, cb: (errors: string[]) => void) {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
       if (mutation.type === 'attributes') {
         if (mutation.attributeName === DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME) {
           cb(input.dataset.validationErrorMessage?.split('\n') || []);
@@ -206,7 +206,7 @@ function extractShape(schema: z.ZodSchema) {
 
 export function parseFormData<TSchema extends z.ZodSchema>(
   formData: FormData,
-  schema: TSchema,
+  schema: TSchema
 ): z.SafeParseReturnType<any, z.infer<TSchema>> {
   return schema.safeParse(preprocess(formDataToObject(formData), schema));
 }

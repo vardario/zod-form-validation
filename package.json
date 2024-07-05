@@ -50,7 +50,7 @@
     "semantic-release": "^22.0.8",
     "serve": "^14.2.1",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.6",
+    "vitest": "^1.6.0",
     "zod": "^3.22.4"
   },
   "keywords": [],
@@ -61,5 +61,5 @@
     ],
     "package.json": "prettier-package-json --write"
   },
-  "packageManager": "pnpm@8.10.5"
+  "packageManager": "pnpm@9.1.0"
 }

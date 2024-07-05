@@ -27,8 +27,10 @@ function setInputElementValue(inputElement: HTMLInputElement, value: string) {
       inputElement.setAttribute('checked', '');
       inputElement.setAttribute('value', value);
       inputElement.value = value;
+      inputElement.checked = true;
     } else {
       inputElement.removeAttribute('checked');
+      inputElement.checked = false;
     }
   } else {
     inputElement.value = value;

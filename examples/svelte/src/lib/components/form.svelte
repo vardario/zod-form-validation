@@ -5,13 +5,13 @@
     setValidationErrorsToForm,
     setFormDataToForm,
     objectToFormData,
-    clearFormValidationErrors
-  } from "@vardario/zod-form-validation";
+    clearFormValidationErrors    
+  } from '@vardario/zod-form-validation';
 </script>
 
 <script lang="ts">
-  import type { ZodAny, AnyZodObject, z, ZodEffects } from "zod";
-  import type { PartialDeep } from "type-fest";
+  import type { ZodAny, AnyZodObject, z, ZodEffects } from 'zod';
+  import type { PartialDeep } from 'type-fest';
 
   type T = $$Generic<AnyZodObject | ZodAny | ZodEffects<AnyZodObject>>;
   type ObjectType = z.infer<typeof schema>;
@@ -24,19 +24,19 @@
 
   $: {
     form && data && setFormDataToForm(form, data);
-     data && console.log( objectToFormData(data))
-    
+    data && console.log(objectToFormData(data));
   }
   $: form && setRequiresToForm(form, schema);
 
   function enhance(_form: HTMLFormElement) {
-    clearFormValidationErrors(_form)
+    clearFormValidationErrors(_form);
     form = _form;
   }
 
   function fromValidation() {
     const result = validateFormData(new FormData(form), schema);
-    if (result.success === false) {      
+
+    if (result.success === false) {
       setValidationErrorsToForm(form, result.error);
       return false;
     }
@@ -50,7 +50,7 @@
   use:enhance
   on:input={() => doValidateOnInput && fromValidation()}
   on:submit
-  on:submit={(event) => {
+  on:submit={event => {
     doValidateOnInput = true;
     if (!fromValidation()) {
       event.preventDefault();

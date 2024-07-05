@@ -24,7 +24,8 @@ module.exports = {
     '*.postcss',
     '*.html',
     '*.md',
-    '*.css'
+    '*.css',
+    '*.svelte'
   ],
   overrides: [],
   parserOptions: {

@@ -1,42 +1,19 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import {
-  flattenObject,
-  flattenSchema,
-  formDataToObject,
-  objectToFormData,
-  parseFormData,
-  preprocess
-} from '../utils.js';
+import { flattenObject, flattenSchema, formDataToObject, objectToFormData, parseFormData } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getFormData } from './test-fixtures.js';
 
 describe('utils', () => {
   test('formDataToObject', () => {
     const formData = getFormData();
-    const object = formDataToObject(formData);
-    expect(object).toStrictEqual({
-      bigInt: ['1'],
-      bigIntArray: ['0', '1', '2'],
-      boolean: ['true'],
-      defaultBoolean: ['true'],
-      booleanArray: ['true', 'false'],
-      number: ['1024'],
-      numberArray: ['0'],
-      string: ['string'],
-      stringArray: ['0', '1', '2'],
-      enum: ['ONE'],
-      object: {
-        string: ['string'],
-        numberArray: ['0', '1', '2'],
-        nested: { string: ['string'] }
-      }
-    });
+    const object = formDataToObject(formData, SCHEMA);
+    expect(object).toStrictEqual(EXPECTED_DATA);
   });
 
   test('objectToFormData', () => {
     const formData = getFormData();
-    const object = formDataToObject(formData);
-    expect(formDataToObject(objectToFormData(object))).toStrictEqual(object);
+    const object = formDataToObject(formData, SCHEMA);
+    expect(formDataToObject(objectToFormData(object), SCHEMA)).toStrictEqual(object);
 
     const undefinedFormData = objectToFormData({
       unused: undefined
@@ -47,7 +24,7 @@ describe('utils', () => {
 
   test('flattenObject', () => {
     const formData = getFormData();
-    const object = formDataToObject(formData);
+    const object = formDataToObject(formData, SCHEMA);
     const flatObject = flattenObject(object);
 
     expect(Object.keys(flatObject).sort()).toStrictEqual(
@@ -64,22 +41,10 @@ describe('utils', () => {
         'enum',
         'object.string',
         'object.numberArray',
-        'object.nested.string'
+        'object.nested.string',
+        'toc'
       ].sort()
     );
-
-    const allElementsAreArrays = Object.values(flatObject)
-      .map(value => Array.isArray(value))
-      .reduce((acc, value) => acc && value, true);
-
-    expect(allElementsAreArrays).toBe(true);
-  });
-
-  test('preprocess', () => {
-    const formData = getFormData();
-    const formDataObject = formDataToObject(formData);
-    const object = preprocess(formDataObject, SCHEMA);
-    expect(object).toStrictEqual(EXPECTED_DATA);
   });
 
   test('flattenSchema', () => {
@@ -100,7 +65,8 @@ describe('utils', () => {
         'object.nested',
         'object.string',
         'object.numberArray',
-        'object.nested.string'
+        'object.nested.string',
+        'toc'
       ].sort()
     );
   });

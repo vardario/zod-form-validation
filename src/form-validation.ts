@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { flattenSchema, formDataToObject, groupIssuesByName, objectToFormData, preprocess } from './utils.js';
+import { flattenSchema, formDataToObject, groupIssuesByName, objectToFormData } from './utils.js';
 
 export const DATA_VALIDATION_ERROR_ATTRIBUTE_NAME = 'data-validation-error';
 export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-error-message';
@@ -23,11 +23,17 @@ function setSelectElementValue(selectElement: HTMLSelectElement, values: string[
 
 function setInputElementValue(inputElement: HTMLInputElement, value: string) {
   if (inputElement.type === 'checkbox' || inputElement.type === 'radio') {
-    inputElement.checked = inputElement.value === value.replace('true', 'on');
-    inputElement.setAttribute('checked', value.replace('true', 'on'));
+    if (value === 'true') {
+      inputElement.setAttribute('checked', '');
+      inputElement.setAttribute('value', value);
+      inputElement.value = value;
+      inputElement.checked = true;
+    } else {
+      inputElement.removeAttribute('checked');
+      inputElement.checked = false;
+    }
   } else {
     inputElement.value = value;
-    inputElement.setAttribute('value', value);
   }
 }
 
@@ -62,8 +68,7 @@ export function setDataToForm(form: HTMLFormElement, data: any) {
 }
 
 export function validateFormData<TSchema extends z.Schema>(formData: FormData, schema: TSchema) {
-  const object = preprocess(formDataToObject(formData), schema);
-  return schema.safeParse(object);
+  return schema.safeParse(formDataToObject(formData, schema));
 }
 
 export function clearFormValidationErrors(form: HTMLFormElement) {

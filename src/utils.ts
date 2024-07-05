@@ -41,58 +41,6 @@ export function zodTypeOf<TSchema extends z.ZodSchema>(schema: TSchema) {
   return (schema._def as Record<string, any>)['typeName'] as z.ZodFirstPartyTypeKind;
 }
 
-export function preprocess<TSchema extends z.ZodSchema>(values: ObjectType, schema: TSchema): z.infer<TSchema> {
-  const unboxedSchema = fullyUnwrap(schema);
-  const zodType = zodTypeOf(unboxedSchema);
-
-  if (typeof values === 'object' && !Array.isArray(values)) {
-    if (zodType === z.ZodFirstPartyTypeKind.ZodObject) {
-      const result: Record<string, any> = {};
-      for (const key in values) {
-        const propSchema = (unboxedSchema as unknown as z.SomeZodObject).shape[key];
-        if (!propSchema) {
-          continue;
-        }
-        result[key] = preprocess(values[key], propSchema);
-      }
-      return result;
-    }
-    return values;
-  }
-
-  const [value] = values;
-
-  if (value instanceof File) {
-    console.error('File fields are not supported yet!');
-    return undefined;
-  }
-
-  switch (zodType) {
-    case z.ZodFirstPartyTypeKind.ZodArray: {
-      const arraySchema = unboxedSchema._def as z.ZodArrayDef;
-      return values.length
-        ? values.map(item => preprocess([item], arraySchema.type)).filter(item => item !== undefined)
-        : undefined;
-    }
-
-    case z.ZodFirstPartyTypeKind.ZodBigInt: {
-      return value !== '' ? BigInt(value) : undefined;
-    }
-    case z.ZodFirstPartyTypeKind.ZodBoolean: {
-      return value === 'true' || value === 'on' || false;
-    }
-    case z.ZodFirstPartyTypeKind.ZodDate: {
-      return value !== '' ? new Date(value) : undefined;
-    }
-    case z.ZodFirstPartyTypeKind.ZodNumber: {
-      return value !== '' ? Number(value) : undefined;
-    }
-    default: {
-      return value === '' ? undefined : value;
-    }
-  }
-}
-
 export function flattenObject(object: any, prefix = '') {
   return Object.keys(object).reduce((acc, key) => {
     const pre = prefix !== '' ? `${prefix}.` : '';
@@ -109,16 +57,77 @@ export function flattenObject(object: any, prefix = '') {
 
 export type ObjectType = FormDataEntryValue[] | { [key: string]: ObjectType };
 
-export function formDataToObject(formData: FormData) {
-  const result: ObjectType = {};
-  for (const key of formData.keys()) {
-    setNested(result, key.split('.'), formData.getAll(key));
+function parseWithZodTyp(type: z.ZodFirstPartyTypeKind, value: string) {
+  if (value === '') {
+    return undefined;
   }
-  return result;
+
+  switch (type) {
+    case z.ZodFirstPartyTypeKind.ZodBigInt:
+      return BigInt(value);
+    case z.ZodFirstPartyTypeKind.ZodBoolean:
+      return value === 'true' || value === 'on';
+    case z.ZodFirstPartyTypeKind.ZodDate:
+      return new Date(value);
+    case z.ZodFirstPartyTypeKind.ZodNumber:
+      return Number(value);
+    case z.ZodFirstPartyTypeKind.ZodLiteral:
+      return value === 'true' || value === 'on';
+    default:
+      return value;
+  }
 }
 
-export function formDataToData<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
-  return preprocess(formDataToObject(formData), schema);
+export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
+  const flatSchema = flattenSchema(schema);
+  const flatObject: any = {};
+
+  for (const [key, value] of formData.entries()) {
+    const valueSchema = fullyUnwrap(flatSchema[key]);
+    const zodType = zodTypeOf(valueSchema);
+
+    if (value instanceof File) {
+      throw new Error('File fields are not supported yet!');
+    }
+
+    if (flatObject[key]) {
+      if (Array.isArray(flatObject[key])) {
+        flatObject[key].push(value);
+      } else {
+        flatObject[key] = [flatObject[key], value];
+      }
+    } else {
+      if (zodType === z.ZodFirstPartyTypeKind.ZodArray) {
+        flatObject[key] = [value];
+      } else {
+        flatObject[key] = value;
+      }
+    }
+  }
+
+  for (const key of Object.keys(flatSchema)) {
+    const valueSchema = fullyUnwrap(flatSchema[key]);
+    const zodType = zodTypeOf(valueSchema);
+
+    if (Array.isArray(flatObject[key])) {
+      const arrayDef = valueSchema._def as z.ZodArrayDef;
+      flatObject[key] = flatObject[key].map((value: string) => parseWithZodTyp(zodTypeOf(arrayDef.type), value));
+    } else if (flatObject[key] !== undefined) {
+      flatObject[key] = parseWithZodTyp(zodType, flatObject[key]);
+    } else if (zodType === ZodFirstPartyTypeKind.ZodBoolean) {
+      flatObject[key] = false;
+    }
+  }
+
+  const object: any = {};
+
+  for (const key in flatObject) {
+    setNested(object, key.split('.'), flatObject[key]);
+  }
+
+  const result = clearUndefined(object) as z.infer<TSchema>;
+
+  return result;
 }
 
 export function objectToFormData(obj: any) {
@@ -208,5 +217,34 @@ export function parseFormData<TSchema extends z.ZodSchema>(
   formData: FormData,
   schema: TSchema
 ): z.SafeParseReturnType<any, z.infer<TSchema>> {
-  return schema.safeParse(preprocess(formDataToObject(formData), schema));
+  return schema.safeParse(formDataToObject(formData, schema));
+}
+
+function clearUndefined(obj: any) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    // Recursively clear undefined values in array elements
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i] === undefined) {
+        obj.splice(i, 1);
+        i--; // Adjust index after removal
+      } else {
+        clearUndefined(obj[i]);
+      }
+    }
+  } else {
+    // Recursively clear undefined values in object properties
+    for (const key in obj) {
+      if (obj[key] === undefined) {
+        delete obj[key];
+      } else if (typeof obj[key] === 'object') {
+        clearUndefined(obj[key]);
+      }
+    }
+  }
+
+  return obj;
 }

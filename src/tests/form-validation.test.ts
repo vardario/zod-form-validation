@@ -8,7 +8,7 @@ import {
   setValidationErrorsToForm,
   validateFormData
 } from '../form-validation.js';
-import { formDataToData } from '../utils.js';
+import { formDataToObject } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getDom, getFormData } from './test-fixtures.js';
 
 describe('Form Validation', () => {
@@ -19,7 +19,7 @@ describe('Form Validation', () => {
     setFormDataToForm(form!, getFormData());
     const formData = new FormData(form!);
 
-    expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
+    expect(formDataToObject(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
 
     const arraySchema = z.object({
       array: z.array(z.number())
@@ -39,11 +39,11 @@ describe('Form Validation', () => {
 
     setFormDataToForm(arrayFrom!, arrayFormDataA);
     arrayFormDataA = new FormData(arrayFrom!);
-    expect(formDataToData(arrayFormDataA, arraySchema)).toStrictEqual({ array: arrayValuesA });
+    expect(formDataToObject(arrayFormDataA, arraySchema)).toStrictEqual({ array: arrayValuesA });
 
     setFormDataToForm(arrayFrom!, arrayFormDataB);
     arrayFormDataB = new FormData(arrayFrom!);
-    expect(formDataToData(arrayFormDataB, arraySchema)).toStrictEqual({ array: arrayValuesB });
+    expect(formDataToObject(arrayFormDataB, arraySchema)).toStrictEqual({ array: arrayValuesB });
   });
 
   test('setDataToForm', () => {
@@ -53,7 +53,7 @@ describe('Form Validation', () => {
 
     setDataToForm(form!, EXPECTED_DATA);
     const formData = new FormData(form!);
-    expect(formDataToData(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
+    expect(formDataToObject(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
   });
 
   test('validateFormData', () => {
@@ -80,6 +80,7 @@ describe('Form Validation', () => {
     expect(validationFailedResult.success).toBe(false);
     if (validationFailedResult.success === false) {
       setValidationErrorsToForm(form!, validationFailedResult.error);
+
       const inputs = form?.querySelectorAll('[data-validation-error=true]');
       expect([...inputs!].length).toBe(11);
     }
@@ -91,6 +92,6 @@ describe('Form Validation', () => {
     setRequiresToForm(form!, SCHEMA);
     const inputs = form?.querySelectorAll('[data-validation-required]');
     expect(inputs).not.toBe(null);
-    expect([...inputs!].length).toBe(11);
+    expect([...inputs!].length).toBe(13);
   });
 });

@@ -138,7 +138,7 @@ export function objectToFormData(obj: any) {
     const value = flatObject[key];
     if (Array.isArray(value)) {
       value.forEach(v => formData.append(key, v.toString()));
-    } else if (value) {
+    } else if (value !== undefined) {
       formData.append(key, value.toString());
     }
   }

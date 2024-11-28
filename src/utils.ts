@@ -83,6 +83,10 @@ export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData
   const flatObject: any = {};
 
   for (const [key, value] of formData.entries()) {
+    if (flatSchema[key] === undefined) {
+      continue;
+    }
+
     const valueSchema = fullyUnwrap(flatSchema[key]);
     const zodType = zodTypeOf(valueSchema);
 

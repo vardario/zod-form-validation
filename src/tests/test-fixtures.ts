@@ -1,30 +1,28 @@
 import { JSDOM } from 'jsdom';
 import { z } from 'zod';
 
-export const SCHEMA = z
-  .object({
-    string: z.string().optional(),
-    toc: z.boolean().refine(val => val === true, {
-      message: 'Please read and accept the terms and conditions'
-    }),
-    boolean: z.boolean(),
-    defaultBoolean: z.boolean(),
-    bigInt: z.bigint(),
-    number: z.number(),
-    stringArray: z.array(z.string()),
-    booleanArray: z.array(z.boolean()),
+export const SCHEMA = z.object({
+  string: z.string().optional(),
+  toc: z.boolean().refine(val => val === true, {
+    message: 'Please read and accept the terms and conditions'
+  }),
+  boolean: z.boolean(),
+  defaultBoolean: z.boolean(),
+  bigInt: z.bigint(),
+  number: z.number(),
+  stringArray: z.array(z.string()),
+  booleanArray: z.array(z.boolean()),
+  numberArray: z.array(z.number()),
+  bigIntArray: z.array(z.bigint()),
+  enum: z.enum(['ONE', 'TWO']),
+  object: z.object({
+    string: z.string(),
     numberArray: z.array(z.number()),
-    bigIntArray: z.array(z.bigint()),
-    enum: z.enum(['ONE', 'TWO']),
-    object: z.object({
-      string: z.string(),
-      numberArray: z.array(z.number()),
-      nested: z.object({
-        string: z.string()
-      })
+    nested: z.object({
+      string: z.string()
     })
   })
-  .superRefine(() => {});
+});
 
 export type DataType = z.infer<typeof SCHEMA>;
 

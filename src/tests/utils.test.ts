@@ -6,8 +6,19 @@ import { EXPECTED_DATA, SCHEMA, getFormData } from './test-fixtures.js';
 describe('utils', () => {
   test('formDataToObject', () => {
     const formData = getFormData();
-    const object = formDataToObject(formData, SCHEMA);
-    expect(object).toStrictEqual(EXPECTED_DATA);
+    expect(formDataToObject(formData, SCHEMA)).toStrictEqual(EXPECTED_DATA);
+
+    const omittedData = { ...EXPECTED_DATA, number: undefined };
+    delete omittedData.number;
+
+    expect(
+      formDataToObject(
+        formData,
+        SCHEMA.omit({
+          number: true
+        })
+      )
+    ).toStrictEqual(omittedData);
   });
 
   test('objectToFormData', () => {

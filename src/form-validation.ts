@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { formDataToObject, groupIssuesByName, objectToFormData } from './utils.js';
+import { formDataToObject, groupIssuesByName, objectToFormData, unsetLeafNodes } from './utils.js';
 
 export const DATA_VALIDATION_ERROR_ATTRIBUTE_NAME = 'data-validation-error';
 export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-error-message';
@@ -68,8 +68,6 @@ export function setDataToForm(form: HTMLFormElement, data: any) {
 }
 
 export function validateFormData<TSchema extends z.Schema>(formData: FormData, schema: TSchema) {
-  console.log(formDataToObject(formData, schema));
-
   return schema.safeParse(formDataToObject(formData, schema));
 }
 
@@ -106,7 +104,7 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
 }
 
 export function setRequiresToForm<TSchema extends z.Schema>(form: HTMLFormElement, schema: TSchema) {
-  const result = schema.safeParse(formDataToObject(new FormData(form), schema));
+  const result = schema.safeParse(unsetLeafNodes(formDataToObject(new FormData(form), schema)));
 
   if (!result.success) {
     result.error.issues.forEach(issue => {

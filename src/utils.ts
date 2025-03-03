@@ -232,3 +232,14 @@ function clearUndefined(obj: any) {
 
   return obj;
 }
+
+export function unsetLeafNodes(obj: any): any {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      typeof value === 'object' && value !== null && !Array.isArray(value)
+        ? unsetLeafNodes(value) // Recurse only for objects, skip arrays
+        : undefined
+    ])
+  );
+}

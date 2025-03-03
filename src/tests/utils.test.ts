@@ -87,14 +87,4 @@ describe('utils', () => {
       expect(result.data).toStrictEqual(EXPECTED_DATA);
     }
   });
-
-  // test('emptyArrayHandling', () => {
-  //   const schema = z.object({
-  //     array: z.array(z.string())
-  //   });
-  //   const formData = new FormData();
-  //   formData.append('array', '');
-
-  //   expect(parseFormData(formData, schema).success).toBe(true);
-  // });
 });

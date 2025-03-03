@@ -79,6 +79,8 @@ describe('Form Validation', () => {
     const validationFailedResult = validateFormData(new FormData(form!), SCHEMA);
     expect(validationFailedResult.success).toBe(false);
     if (validationFailedResult.success === false) {
+      // console.log(validationFailedResult.error.issues.length);
+      // console.log(JSON.stringify(validationFailedResult.error.issues, null, 2));
       setValidationErrorsToForm(form!, validationFailedResult.error);
 
       const inputs = form?.querySelectorAll('[data-validation-error=true]');

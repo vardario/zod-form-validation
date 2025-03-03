@@ -68,6 +68,8 @@ export function setDataToForm(form: HTMLFormElement, data: any) {
 }
 
 export function validateFormData<TSchema extends z.Schema>(formData: FormData, schema: TSchema) {
+  console.log(formDataToObject(formData, schema));
+
   return schema.safeParse(formDataToObject(formData, schema));
 }
 
@@ -93,6 +95,7 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
       | HTMLSelectElement
       | HTMLTextAreaElement;
     const issues = issuesByName[name];
+
     if (inputElement) {
       const errorMessage = issues.map(issue => issue.message).join('\n');
       inputElement.setCustomValidity(errorMessage);

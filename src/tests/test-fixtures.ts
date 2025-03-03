@@ -50,7 +50,7 @@ export function getDom() {
       <option value="1">1</option>
       <option value="2">2</option>
   </select>
-  <input name="toc" type="checkbox" checked/>  
+  <input name="toc" type="checkbox" />  
   <input name="number" type="number" />
   <select multiple name="numberArray">
       <option value="0">0</option>

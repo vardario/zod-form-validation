@@ -111,7 +111,6 @@ export function setRequiresToForm<TSchema extends z.Schema>(form: HTMLFormElemen
   if (!result.success) {
     result.error.issues.forEach(issue => {
       if (issue.code === 'invalid_type' && issue.received === 'undefined') {
-        console.log(issue.path.join('.'));
         const inputElement = form.querySelector(`[name="${issue.path.join('.')}"]`);
         if (inputElement && inputElement.getAttribute('type') !== 'radio') {
           inputElement.setAttribute(DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME, 'true');

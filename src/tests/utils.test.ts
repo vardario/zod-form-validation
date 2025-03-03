@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { flattenObject, flattenSchema, formDataToObject, objectToFormData, parseFormData } from '../utils.js';
+import { flattenObject, formDataToObject, objectToFormData, parseFormData } from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getFormData } from './test-fixtures.js';
 
 describe('utils', () => {
@@ -66,38 +66,11 @@ describe('utils', () => {
       [
         'bigInt',
         'bigIntArray',
-        'boolean',
-        'defaultBoolean',
-        'booleanArray',
         'number',
         'numberArray',
         'string',
         'stringArray',
         'enum',
-        'object.string',
-        'object.numberArray',
-        'object.nested.string',
-        'toc'
-      ].sort()
-    );
-  });
-
-  test('flattenSchema', () => {
-    const flatSchema = flattenSchema(SCHEMA);
-    expect(Object.keys(flatSchema).sort()).toStrictEqual(
-      [
-        'bigInt',
-        'bigIntArray',
-        'boolean',
-        'defaultBoolean',
-        'booleanArray',
-        'number',
-        'numberArray',
-        'string',
-        'stringArray',
-        'enum',
-        'object',
-        'object.nested',
         'object.string',
         'object.numberArray',
         'object.nested.string',

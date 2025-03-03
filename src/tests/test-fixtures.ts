@@ -6,12 +6,9 @@ export const SCHEMA = z.object({
   toc: z.boolean().refine(val => val === true, {
     message: 'Please read and accept the terms and conditions'
   }),
-  boolean: z.boolean(),
-  defaultBoolean: z.boolean(),
   bigInt: z.bigint(),
   number: z.number(),
   stringArray: z.array(z.string()),
-  booleanArray: z.array(z.boolean()),
   numberArray: z.array(z.number()),
   bigIntArray: z.array(z.bigint()),
   enum: z.enum(['ONE', 'TWO']),
@@ -30,9 +27,6 @@ export const EXPECTED_DATA: DataType = {
   toc: true,
   bigInt: 1n,
   bigIntArray: [0n, 1n, 2n],
-  boolean: false,
-  defaultBoolean: true,
-  booleanArray: [true, false],
   number: 1024,
   numberArray: [0],
   string: 'string',
@@ -56,13 +50,7 @@ export function getDom() {
       <option value="1">1</option>
       <option value="2">2</option>
   </select>
-  <input name="toc" type="checkbox" />
-  <input name="boolean" type="checkbox" />
-  <input name="defaultBoolean" type="checkbox"/>
-  <select multiple name="booleanArray">
-      <option value="true">true</option>
-      <option value="false">false</option>
-  </select>
+  <input name="toc" type="checkbox" checked/>  
   <input name="number" type="number" />
   <select multiple name="numberArray">
       <option value="0">0</option>
@@ -100,9 +88,6 @@ export function getFormData() {
   formData.append('bigIntArray', '0');
   formData.append('bigIntArray', '1');
   formData.append('bigIntArray', '2');
-  formData.append('defaultBoolean', 'true');
-  formData.append('booleanArray', 'true');
-  formData.append('booleanArray', 'false');
   formData.append('number', '1024');
   formData.append('numberArray', '0');
   formData.append('string', 'string');

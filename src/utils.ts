@@ -61,6 +61,10 @@ const preprocessValues = (schema: z.ZodTypeAny, data: any): any => {
   schema = fullyUnwrap(schema);
   const type = zodTypeOf(fullyUnwrap(schema));
 
+  if (data === '') {
+    return undefined;
+  }
+
   if (type === z.ZodFirstPartyTypeKind.ZodNumber) {
     return typeof data === 'string' && !isNaN(Number(data)) ? Number(data) : data;
   }
@@ -116,10 +120,6 @@ const preprocessValues = (schema: z.ZodTypeAny, data: any): any => {
 
     // Recursively process the selected branch
     return preprocessValues(selectedSchema, data);
-  }
-
-  if (data === '') {
-    return undefined;
   }
 
   return data;
@@ -183,39 +183,6 @@ export function groupIssuesByName(issues: z.ZodIssue[]) {
   );
 }
 
-export function flattenSchema<TSchema extends z.ZodSchema>(schema: TSchema, prefix = '') {
-  const shape = extractShape(schema);
-
-  if (shape) {
-    return Object.keys(shape).reduce(
-      (acc, key) => {
-        const pre = prefix !== '' ? `${prefix}.` : '';
-        const value = shape[key];
-        const _shape = extractShape(value);
-
-        if (_shape) {
-          acc[pre + key] = value;
-          Object.assign(acc, flattenSchema(value, pre + key));
-        } else {
-          acc[pre + key] = value;
-        }
-        return acc;
-      },
-      {} as Record<string, z.Schema>
-    );
-  }
-
-  const type = zodTypeOf(fullyUnwrap(schema));
-
-  if (shape === undefined && type === ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
-    const discSchema = schema as unknown as z.ZodDiscriminatedUnion<any, any>;
-    const discKey = discSchema.discriminator;
-    return { [discKey]: schema };
-  } else {
-    throw new Error('Schema is not a shape or discriminated union');
-  }
-}
-
 export function observerValidationErrors(input: HTMLElement, cb: (errors: string[]) => void) {
   const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
@@ -228,16 +195,6 @@ export function observerValidationErrors(input: HTMLElement, cb: (errors: string
   });
 
   observer.observe(input, { attributes: true });
-}
-
-function extractShape(schema: z.ZodSchema) {
-  const shapeFn = (fullyUnwrap(schema)._def as Record<string, any>)['shape'];
-
-  if (shapeFn) {
-    return shapeFn() as Record<string, z.ZodSchema>;
-  }
-
-  return undefined;
 }
 
 export function parseFormData<TSchema extends z.ZodSchema>(
@@ -255,7 +212,7 @@ function clearUndefined(obj: any) {
   if (Array.isArray(obj)) {
     // Recursively clear undefined values in array elements
     for (let i = 0; i < obj.length; i++) {
-      if (obj[i] === undefined) {
+      if (obj[i] === undefined || obj[i] === false) {
         obj.splice(i, 1);
         i--; // Adjust index after removal
       } else {

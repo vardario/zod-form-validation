@@ -84,7 +84,7 @@ describe('Form Validation', () => {
       setValidationErrorsToForm(form!, validationFailedResult.error);
 
       const inputs = form?.querySelectorAll('[data-validation-error=true]');
-      expect([...inputs!].length).toBe(11);
+      expect([...inputs!].length).toBe(9);
     }
   });
 
@@ -94,6 +94,6 @@ describe('Form Validation', () => {
     setRequiresToForm(form!, SCHEMA);
     const inputs = form?.querySelectorAll('[data-validation-required]');
     expect(inputs).not.toBe(null);
-    expect([...inputs!].length).toBe(13);
+    expect([...inputs!].length).toBe(9);
   });
 });

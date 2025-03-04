@@ -1,6 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { flattenObject, formDataToObject, objectToFormData, parseFormData } from '../utils.js';
+import {
+  findDiscriminatorPaths,
+  flattenObject,
+  formDataToObject,
+  objectToFormData,
+  parseFormData,
+  unsetLeafNodes
+} from '../utils.js';
 import { EXPECTED_DATA, SCHEMA, getFormData } from './test-fixtures.js';
 
 describe('utils', () => {
@@ -35,14 +42,100 @@ describe('utils', () => {
 
     const discriminatedUnionSchema = z.discriminatedUnion('type', [schemaA, schemaB]);
 
-    const formData = new FormData();
-    formData.append('type', 'B');
-    formData.append('a', '10');
-    formData.append('b', '10');
+    const formDataTypeA = new FormData();
+    formDataTypeA.append('type', 'A');
+    formDataTypeA.append('a', '10');
 
-    const object = formDataToObject(formData, discriminatedUnionSchema);
+    const formDataTypeB = new FormData();
+    formDataTypeB.append('type', 'B');
+    formDataTypeB.append('a', '10');
+    formDataTypeB.append('b', '10');
 
-    console.log(object);
+    const resultA = parseFormData(formDataTypeA, discriminatedUnionSchema);
+
+    if (!resultA.success) {
+      throw new Error('Failed to parse form data');
+    }
+
+    expect(resultA.data).toStrictEqual({
+      type: 'A',
+      a: 10
+    });
+
+    const resultB = parseFormData(formDataTypeB, discriminatedUnionSchema);
+
+    if (!resultB.success) {
+      throw new Error('Failed to parse form data');
+    }
+
+    expect(resultB.data).toStrictEqual({
+      type: 'B',
+      a: '10',
+      b: 10
+    });
+  });
+
+  test('findDiscriminatorPaths', () => {
+    const schemaA = z.object({
+      type: z.literal('A'),
+      a: z.number()
+    });
+
+    const schemaB = z.object({
+      type: z.literal('B'),
+      a: z.string(),
+      b: z.number()
+    });
+
+    const discriminatedUnionSchema = z.discriminatedUnion('type', [schemaA, schemaB]);
+
+    const nestedObject = z.object({
+      object: discriminatedUnionSchema
+    });
+
+    expect(findDiscriminatorPaths(discriminatedUnionSchema)).toStrictEqual(['type']);
+    expect(findDiscriminatorPaths(nestedObject)).toStrictEqual(['object.type']);
+  });
+
+  test('unsetLeafNodes', () => {
+    const object = {
+      a: 1,
+      b: {
+        c: 2,
+        d: {
+          e: 3,
+          f: {
+            g: 4
+          }
+        }
+      }
+    };
+
+    expect(unsetLeafNodes(object)).toStrictEqual({
+      a: undefined,
+      b: {
+        c: undefined,
+        d: {
+          e: undefined,
+          f: {
+            g: undefined
+          }
+        }
+      }
+    });
+
+    expect(unsetLeafNodes(object, ['a', 'b.d.e'])).toStrictEqual({
+      a: 1,
+      b: {
+        c: undefined,
+        d: {
+          e: 3,
+          f: {
+            g: undefined
+          }
+        }
+      }
+    });
   });
 
   test('objectToFormData', () => {

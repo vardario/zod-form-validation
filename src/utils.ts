@@ -233,13 +233,47 @@ function clearUndefined(obj: any) {
   return obj;
 }
 
-export function unsetLeafNodes(obj: any): any {
+export function unsetLeafNodes(obj: any, ignoreList: string[] = [], path = ''): any {
   return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [
-      key,
-      typeof value === 'object' && value !== null && !Array.isArray(value)
-        ? unsetLeafNodes(value) // Recurse only for objects, skip arrays
-        : undefined
-    ])
+    Object.entries(obj).map(([key, value]) => {
+      const currentPath = path ? `${path}.${key}` : key;
+
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        return [key, unsetLeafNodes(value, ignoreList, currentPath)];
+      }
+
+      // Keep value if the path is in the ignore list, otherwise set to undefined
+      return [key, ignoreList.includes(currentPath) ? value : undefined];
+    })
   );
 }
+
+export const findDiscriminatorPaths = (schema: z.ZodTypeAny, path: string = ''): string[] => {
+  schema = fullyUnwrap(schema);
+  const type = zodTypeOf(schema);
+
+  const paths: string[] = [];
+
+  if (type === z.ZodFirstPartyTypeKind.ZodObject) {
+    const zodObjectSchema = schema as z.ZodObject<any>;
+    for (const key in zodObjectSchema.shape) {
+      const subPaths = findDiscriminatorPaths(zodObjectSchema.shape[key], path ? `${path}.${key}` : key);
+      paths.push(...subPaths);
+    }
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodArray) {
+    const arraySchema = schema as z.ZodArray<any>;
+    const subPaths = findDiscriminatorPaths(arraySchema.element, path ? `${path}[]` : '[]');
+    paths.push(...subPaths);
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
+    const zodDiscriminatedUnionSchema = schema as z.ZodDiscriminatedUnion<any, any>;
+    paths.push(
+      path ? `${path}.${zodDiscriminatedUnionSchema.discriminator}` : zodDiscriminatedUnionSchema.discriminator
+    );
+  }
+
+  return paths;
+};

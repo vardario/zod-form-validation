@@ -4,6 +4,19 @@ const petsSchema = z.enum(['dog', 'cat', 'hamster', 'parrot', 'spider', 'goldfis
 const monsterSchema = z.enum(['kraken', 'sasquatch', 'mothman']);
 const fruits = z.enum(['apple', 'banana', 'kiwi']);
 
+export const typeASchema = z.object({
+  type: z.literal('A'),
+  a: z.number()
+});
+
+export const typeBSchema = z.object({
+  type: z.literal('B'),
+  a: z.string(),
+  b: z.number().optional()
+});
+
+export const discriminatedUnionSchema = z.discriminatedUnion('type', [typeASchema, typeBSchema]);
+
 export const schema = z.object({
   admin: z.boolean().refine(val => val === true, {
     message: 'Please read and accept the terms and conditions'
@@ -35,5 +48,8 @@ export const schema = z.object({
   description: z.string(),
   monster: z.object({
     value: monsterSchema
-  })
+  }),
+  dynamicObject: discriminatedUnionSchema
 });
+
+export type ObjectData = z.infer<typeof schema>;

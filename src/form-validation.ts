@@ -45,7 +45,11 @@ function setInputElementValue(inputElement: HTMLInputElement, value: string) {
 
 export function setFormDataToForm(form: HTMLFormElement, formData: FormData) {
   for (const key of formData.keys()) {
-    const formInputs = [...form.querySelectorAll(`[name="${key}"]`)];
+    const safeKey = key.replace(/([#.;,[\]'"=<>~:+*()$^|{}])/g, '\\$1');
+
+    const formInputs = [
+      ...form.querySelectorAll(`input[name="${safeKey}"], select[name="${safeKey}"], textarea[name="${safeKey}"]`)
+    ];
     const values = formData.getAll(key).filter(v => !(v instanceof File)) as string[];
 
     formInputs.forEach(formInput => {

@@ -57,69 +57,90 @@ export function flattenObject(object: any, prefix = '') {
 
 export type ObjectType = FormDataEntryValue[] | { [key: string]: ObjectType };
 
-function parseWithZodTyp(type: z.ZodFirstPartyTypeKind, value: string) {
-  if (value === '') {
+const preprocessValues = (schema: z.ZodTypeAny, data: any): any => {
+  schema = fullyUnwrap(schema);
+  const type = zodTypeOf(fullyUnwrap(schema));
+
+  if (data === '') {
     return undefined;
   }
 
-  switch (type) {
-    case z.ZodFirstPartyTypeKind.ZodBigInt:
-      return BigInt(value);
-    case z.ZodFirstPartyTypeKind.ZodBoolean:
-      return value === 'true' || value === 'on';
-    case z.ZodFirstPartyTypeKind.ZodDate:
-      return new Date(value);
-    case z.ZodFirstPartyTypeKind.ZodNumber:
-      return Number(value);
-    case z.ZodFirstPartyTypeKind.ZodLiteral:
-      return value === 'true' || value === 'on';
-    default:
-      return value;
+  if (type === z.ZodFirstPartyTypeKind.ZodNumber) {
+    return typeof data === 'string' && !isNaN(Number(data)) ? Number(data) : data;
   }
-}
+
+  if (type === z.ZodFirstPartyTypeKind.ZodBoolean) {
+    return data === 'true' || data === 'on';
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodBigInt) {
+    return typeof data === 'string' && !isNaN(Number(data)) ? BigInt(data) : data;
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodEnum) {
+    return data; // Enums are handled by Zod
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodDate) {
+    return new Date(data);
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodString) {
+    return data === '' ? undefined : data;
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodArray) {
+    const arraySchema = schema as z.ZodArray<any>;
+    if (Array.isArray(data)) {
+      return data.map(item => preprocessValues(arraySchema.element, item));
+    }
+
+    const value = preprocessValues(arraySchema.element, data);
+    return value === undefined ? undefined : [value];
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodObject) {
+    const zodObjectSchema = schema as z.ZodObject<any>;
+    if (typeof data !== 'object' || data === null) return data;
+    return Object.fromEntries(
+      Object.entries(zodObjectSchema.shape).map(([key, valueSchema]) => [
+        key,
+        preprocessValues(valueSchema as any, data[key])
+      ])
+    );
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
+    const zodDiscriminatedUnionSchema = schema as z.ZodDiscriminatedUnion<any, any>;
+    if (typeof data !== 'object' || !data || !data[zodDiscriminatedUnionSchema.discriminator]) return data;
+
+    // Determine correct schema branch
+    const selectedSchema = zodDiscriminatedUnionSchema.optionsMap.get(data[zodDiscriminatedUnionSchema.discriminator]);
+    if (!selectedSchema) return data;
+
+    // Recursively process the selected branch
+    return preprocessValues(selectedSchema, data);
+  }
+
+  return data;
+};
 
 export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
-  const flatSchema = flattenSchema(schema);
   const flatObject: any = {};
 
   for (const [key, value] of formData.entries()) {
-    if (flatSchema[key] === undefined) {
-      continue;
-    }
-
-    const valueSchema = fullyUnwrap(flatSchema[key]);
-    const zodType = zodTypeOf(valueSchema);
-
     if (value instanceof File) {
       throw new Error('File fields are not supported yet!');
     }
 
-    if (flatObject[key]) {
+    if (!flatObject[key]) {
+      flatObject[key] = value;
+    } else {
       if (Array.isArray(flatObject[key])) {
         flatObject[key].push(value);
       } else {
         flatObject[key] = [flatObject[key], value];
       }
-    } else {
-      if (zodType === z.ZodFirstPartyTypeKind.ZodArray) {
-        flatObject[key] = [value];
-      } else {
-        flatObject[key] = value;
-      }
-    }
-  }
-
-  for (const key of Object.keys(flatSchema)) {
-    const valueSchema = fullyUnwrap(flatSchema[key]);
-    const zodType = zodTypeOf(valueSchema);
-
-    if (Array.isArray(flatObject[key])) {
-      const arrayDef = valueSchema._def as z.ZodArrayDef;
-      flatObject[key] = flatObject[key].map((value: string) => parseWithZodTyp(zodTypeOf(arrayDef.type), value));
-    } else if (flatObject[key] !== undefined) {
-      flatObject[key] = parseWithZodTyp(zodType, flatObject[key]);
-    } else if (zodType === ZodFirstPartyTypeKind.ZodBoolean) {
-      flatObject[key] = false;
     }
   }
 
@@ -129,9 +150,7 @@ export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData
     setNested(object, key.split('.'), flatObject[key]);
   }
 
-  const result = clearUndefined(object) as z.infer<TSchema>;
-
-  return result;
+  return clearUndefined(preprocessValues(schema, object));
 }
 
 export function objectToFormData(obj: any) {
@@ -164,35 +183,6 @@ export function groupIssuesByName(issues: z.ZodIssue[]) {
   );
 }
 
-function _flattenSchema(shape: any, prefix = '') {
-  return Object.keys(shape).reduce(
-    (acc, key) => {
-      const pre = prefix !== '' ? `${prefix}.` : '';
-      const value = shape[key];
-      const _shape = extractShape(value);
-
-      if (_shape) {
-        acc[pre + key] = value;
-        Object.assign(acc, _flattenSchema(_shape, pre + key));
-      } else {
-        acc[pre + key] = value;
-      }
-      return acc;
-    },
-    {} as Record<string, z.Schema>
-  );
-}
-
-export function flattenSchema<TSchema extends z.ZodSchema>(schema: TSchema, prefix = '') {
-  const type = zodTypeOf(fullyUnwrap(schema));
-  if (type !== ZodFirstPartyTypeKind.ZodObject) {
-    throw new Error('Only a ZodObject can be flattened. ');
-  }
-
-  const shape = extractShape(schema);
-  return _flattenSchema(shape, prefix);
-}
-
 export function observerValidationErrors(input: HTMLElement, cb: (errors: string[]) => void) {
   const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
@@ -205,16 +195,6 @@ export function observerValidationErrors(input: HTMLElement, cb: (errors: string
   });
 
   observer.observe(input, { attributes: true });
-}
-
-function extractShape(schema: z.ZodSchema) {
-  const shapeFn = (fullyUnwrap(schema)._def as Record<string, any>)['shape'];
-
-  if (shapeFn) {
-    return shapeFn() as Record<string, z.ZodSchema>;
-  }
-
-  return undefined;
 }
 
 export function parseFormData<TSchema extends z.ZodSchema>(
@@ -232,7 +212,7 @@ function clearUndefined(obj: any) {
   if (Array.isArray(obj)) {
     // Recursively clear undefined values in array elements
     for (let i = 0; i < obj.length; i++) {
-      if (obj[i] === undefined) {
+      if (obj[i] === undefined || obj[i] === false) {
         obj.splice(i, 1);
         i--; // Adjust index after removal
       } else {
@@ -252,3 +232,48 @@ function clearUndefined(obj: any) {
 
   return obj;
 }
+
+export function unsetLeafNodes(obj: any, ignoreList: string[] = [], path = ''): any {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => {
+      const currentPath = path ? `${path}.${key}` : key;
+
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        return [key, unsetLeafNodes(value, ignoreList, currentPath)];
+      }
+
+      // Keep value if the path is in the ignore list, otherwise set to undefined
+      return [key, ignoreList.includes(currentPath) ? value : undefined];
+    })
+  );
+}
+
+export const findDiscriminatorPaths = (schema: z.ZodTypeAny, path: string = ''): string[] => {
+  schema = fullyUnwrap(schema);
+  const type = zodTypeOf(schema);
+
+  const paths: string[] = [];
+
+  if (type === z.ZodFirstPartyTypeKind.ZodObject) {
+    const zodObjectSchema = schema as z.ZodObject<any>;
+    for (const key in zodObjectSchema.shape) {
+      const subPaths = findDiscriminatorPaths(zodObjectSchema.shape[key], path ? `${path}.${key}` : key);
+      paths.push(...subPaths);
+    }
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodArray) {
+    const arraySchema = schema as z.ZodArray<any>;
+    const subPaths = findDiscriminatorPaths(arraySchema.element, path ? `${path}[]` : '[]');
+    paths.push(...subPaths);
+  }
+
+  if (type === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
+    const zodDiscriminatedUnionSchema = schema as z.ZodDiscriminatedUnion<any, any>;
+    paths.push(
+      path ? `${path}.${zodDiscriminatedUnionSchema.discriminator}` : zodDiscriminatedUnionSchema.discriminator
+    );
+  }
+
+  return paths;
+};

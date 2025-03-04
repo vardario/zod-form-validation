@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { flattenSchema, formDataToObject, groupIssuesByName, objectToFormData } from './utils.js';
+import {
+  findDiscriminatorPaths,
+  formDataToObject,
+  groupIssuesByName,
+  objectToFormData,
+  unsetLeafNodes
+} from './utils.js';
 
 export const DATA_VALIDATION_ERROR_ATTRIBUTE_NAME = 'data-validation-error';
 export const DATA_VALIDATION_ERROR_MESSAGE_ATTRIBUTE_NAME = 'data-validation-error-message';
@@ -93,6 +99,7 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
       | HTMLSelectElement
       | HTMLTextAreaElement;
     const issues = issuesByName[name];
+
     if (inputElement) {
       const errorMessage = issues.map(issue => issue.message).join('\n');
       inputElement.setCustomValidity(errorMessage);
@@ -103,15 +110,17 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
 }
 
 export function setRequiresToForm<TSchema extends z.Schema>(form: HTMLFormElement, schema: TSchema) {
-  const flatSchema = flattenSchema(schema);
+  const ignoreList = findDiscriminatorPaths(schema);
+  const result = schema.safeParse(unsetLeafNodes(formDataToObject(new FormData(form), schema), ignoreList));
 
-  for (const key of Object.keys(flatSchema)) {
-    if (!flatSchema[key].isOptional()) {
-      const inputElement = form.querySelector(`[name="${key}"]`);
-
-      inputElement &&
-        inputElement.getAttribute('type') !== 'radio' &&
-        inputElement.setAttribute(DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME, 'true');
-    }
+  if (!result.success) {
+    result.error.issues.forEach(issue => {
+      if (issue.code === 'invalid_type' && issue.received === 'undefined') {
+        const inputElement = form.querySelector(`[name="${issue.path.join('.')}"]`);
+        if (inputElement && inputElement.getAttribute('type') !== 'radio') {
+          inputElement.setAttribute(DATA_VALIDATION_REQUIRED_ATTRIBUTE_NAME, 'true');
+        }
+      }
+    });
   }
 }

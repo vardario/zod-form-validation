@@ -94,4 +94,25 @@ describe('Form Validation', () => {
     expect(inputs).not.toBe(null);
     expect([...inputs!].length).toBe(10);
   });
+
+  test('empty array', () => {
+    const schema = z.object({
+      array: z.array(z.number())
+    });
+
+    const dom = new JSDOM(`
+    <form>
+    <select multiple name="array">
+      <option value=""></option>
+    </select>
+    </form>
+    `);
+
+    const form = dom.window.document.querySelector('form');
+    expect(form).not.toBeNull();
+
+    const formData = new FormData(form!);
+    const result = validateFormData(formData, schema);
+    expect(result.success).toBe(true);
+  });
 });

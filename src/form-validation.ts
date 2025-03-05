@@ -97,6 +97,8 @@ export function setValidationErrorsToForm(form: HTMLFormElement, error: z.ZodErr
   clearFormValidationErrors(form);
   const issuesByName = groupIssuesByName(error.issues);
 
+  console.log(issuesByName);
+
   for (const name of Object.keys(issuesByName)) {
     const inputElement = form.querySelector(`[name="${name}"]`) as
       | HTMLInputElement

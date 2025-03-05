@@ -96,7 +96,7 @@ const preprocessValues = (schema: z.ZodTypeAny, data: any): any => {
     }
 
     const value = preprocessValues(arraySchema.element, data);
-    return value === undefined ? undefined : [value];
+    return value === undefined ? [] : [value];
   }
 
   if (type === z.ZodFirstPartyTypeKind.ZodObject) {

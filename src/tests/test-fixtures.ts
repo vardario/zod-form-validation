@@ -8,13 +8,13 @@ export const SCHEMA = z.object({
   }),
   bigInt: z.bigint(),
   number: z.number(),
-  stringArray: z.array(z.string()),
-  numberArray: z.array(z.number()),
-  bigIntArray: z.array(z.bigint()),
+  stringArray: z.array(z.string()).min(1),
+  numberArray: z.array(z.number()).min(1),
+  bigIntArray: z.array(z.bigint()).min(1),
   enum: z.enum(['ONE', 'TWO']),
   object: z.object({
     string: z.string(),
-    numberArray: z.array(z.number()),
+    numberArray: z.array(z.number()).min(1),
     nested: z.object({
       string: z.string()
     })

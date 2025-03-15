@@ -125,7 +125,11 @@ const preprocessValues = (schema: z.ZodTypeAny, data: any): any => {
   return data;
 };
 
-export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData, schema: TSchema) {
+export function formDataToObject<TSchema extends z.ZodSchema>(
+  formData: FormData,
+  schema: TSchema,
+  removeEmptyObjects: boolean = false
+) {
   const flatObject: any = {};
 
   for (const [key, value] of formData.entries()) {
@@ -150,7 +154,7 @@ export function formDataToObject<TSchema extends z.ZodSchema>(formData: FormData
     setNested(object, key.split('.'), flatObject[key]);
   }
 
-  return clearUndefined(preprocessValues(schema, object));
+  return clearUndefined(preprocessValues(schema, object), removeEmptyObjects);
 }
 
 export function objectToFormData(obj: any) {
@@ -201,10 +205,10 @@ export function parseFormData<TSchema extends z.ZodSchema>(
   formData: FormData,
   schema: TSchema
 ): z.SafeParseReturnType<any, z.infer<TSchema>> {
-  return schema.safeParse(formDataToObject(formData, schema));
+  return schema.safeParse(formDataToObject(formData, schema, true));
 }
 
-function clearUndefined(obj: any) {
+export function clearUndefined(obj: any, removeEmptyObjects: boolean = false): any {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
@@ -212,25 +216,30 @@ function clearUndefined(obj: any) {
   if (Array.isArray(obj)) {
     // Recursively clear undefined values in array elements
     for (let i = 0; i < obj.length; i++) {
+      obj[i] = clearUndefined(obj[i], removeEmptyObjects);
       if (obj[i] === undefined || obj[i] === false) {
         obj.splice(i, 1);
         i--; // Adjust index after removal
-      } else {
-        clearUndefined(obj[i]);
       }
     }
+    return obj; // Keep empty arrays
   } else {
     // Recursively clear undefined values in object properties
     for (const key in obj) {
-      if (obj[key] === undefined) {
+      obj[key] = clearUndefined(obj[key], removeEmptyObjects);
+      if (
+        obj[key] === undefined ||
+        (removeEmptyObjects &&
+          typeof obj[key] === 'object' &&
+          !Array.isArray(obj[key]) &&
+          Object.keys(obj[key]).length === 0)
+      ) {
         delete obj[key];
-      } else if (typeof obj[key] === 'object') {
-        clearUndefined(obj[key]);
       }
     }
   }
 
-  return obj;
+  return removeEmptyObjects && Object.keys(obj).length === 0 ? undefined : obj;
 }
 
 export function unsetLeafNodes(obj: any, ignoreList: string[] = [], path = ''): any {

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import {
+  clearUndefined,
   findDiscriminatorPaths,
   flattenObject,
   formDataToObject,
@@ -179,5 +180,68 @@ describe('utils', () => {
     if (result.success) {
       expect(result.data).toStrictEqual(EXPECTED_DATA);
     }
+  });
+
+  test('clearUndefined', () => {
+    expect(
+      clearUndefined({
+        a: undefined
+      })
+    ).toStrictEqual({});
+
+    expect(
+      clearUndefined(
+        {
+          a: undefined
+        },
+        true
+      )
+    ).toStrictEqual(undefined);
+
+    expect(
+      clearUndefined({
+        a: {
+          b: undefined
+        }
+      })
+    ).toStrictEqual({ a: {} });
+
+    expect(
+      clearUndefined(
+        {
+          a: {
+            b: undefined
+          }
+        },
+        true
+      )
+    ).toStrictEqual(undefined);
+
+    expect(
+      clearUndefined({
+        a: {
+          b: []
+        }
+      })
+    ).toStrictEqual({
+      a: {
+        b: []
+      }
+    });
+
+    expect(
+      clearUndefined(
+        {
+          a: {
+            b: []
+          }
+        },
+        true
+      )
+    ).toStrictEqual({
+      a: {
+        b: []
+      }
+    });
   });
 });

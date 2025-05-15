@@ -39,6 +39,7 @@ function setInputElementValue(inputElement: HTMLInputElement, value: string) {
       inputElement.checked = false;
     }
   } else {
+    inputElement.setAttribute('value', value);
     inputElement.value = value;
   }
 }
